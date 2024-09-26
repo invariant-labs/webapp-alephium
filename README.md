@@ -1,46 +1,49 @@
-# Getting Started with Create React App
+<div align="center">
+    <h1>⚡Invariant webapp⚡</h1>
+    <p>
+        | <a href="https://docs.invariant.app/docs/alephium">DOCS 📚</a> |
+        <a href="https://invariant.app/math-spec-alph.pdf">MATH SPEC 📄</a> |
+        <a href="https://discord.gg/VzS3C9wR">DISCORD 🌐</a> |
+    </p>
+</div>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Invariant protocol is an AMM built on [Alephium](https://alephium.org/), leveraging high capital efficiency and the ability to list markets in a permissionless manner. At the core of the DEX is the Concentrated Liquidity mechanism, designed to handle tokens compatible with the [Fungible Token Standard](https://docs.alephium.org/tokens/fungible-tokens).
 
-## Available Scripts
+## 🔨 Getting Started
 
-In the project directory, you can run:
+### Prerequisites
 
-### `npm start`
+- Node & NPM ([Node.js](https://nodejs.org/))
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+#### Node & NPM (with NVM)
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm install 20
+```
 
-### `npm test`
+### Build protocol
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Clone repository
 
-### `npm run build`
+```bash
+git clone git@github.com:invariant-labs/webapp-alephium.git
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Install dependencies
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+npm i
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Build app
 
-### `npm run eject`
+```bash
+npm run build
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- Run on local server
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run dev
+```
