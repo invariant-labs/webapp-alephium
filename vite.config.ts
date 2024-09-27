@@ -28,4 +28,7 @@ export default defineConfig({
       external: ["fs/promises", "path"],
     },
   },
+  define: {
+    "process.env.ALEPHIUM_CONTRACT_DEBUG_MESSAGE": false,
+  },
 });
