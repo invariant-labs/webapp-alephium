@@ -6,6 +6,7 @@ import {
 import RootPage from "./RootPage";
 import NewPositionPage from "./NewPositionPage";
 import ListPage from "./ListPage";
+import SinglePositionPage from "./SinglePositionPage";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -15,6 +16,7 @@ export const router = createBrowserRouter(
         path="/newPosition/:item1?/:item2?/:item3?"
         element={<NewPositionPage />}
       />
+      <Route path="/position/:address/:id" element={<SinglePositionPage />} />
     </Route>
   )
 );
