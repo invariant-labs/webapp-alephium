@@ -8,20 +8,28 @@ import {
   TokenAirdropAmount,
 } from "@store/consts/static";
 import { actions as snackbarsActions } from "@store/reducers/snackbars";
+import { actions as positionsActions } from "@store/reducers/positions";
 import { Status, actions } from "@store/reducers/wallet";
 import { networkType } from "@store/selectors/connection";
-import { balance, signer, status } from "@store/selectors/wallet";
-import { createLoaderKey } from "@utils/utils";
+import { tokens } from "@store/selectors/pools";
+import { positionsList } from "@store/selectors/positions";
+import { address, balance, signer, status } from "@store/selectors/wallet";
+import { createLoaderKey, getTokenBalances } from "@utils/utils";
 import { closeSnackbar } from "notistack";
 import {
   all,
   call,
   put,
+  SagaGenerator,
   select,
   spawn,
   takeLatest,
   takeLeading,
 } from "typed-redux-saga";
+
+export function* getBalance(walletAddress: string): SagaGenerator<TokenAmount> {
+  return yield* call(balanceOf, ALPH_TOKEN_ID, walletAddress);
+}
 
 export function* handleAirdrop(): Generator {
   const walletSigner = yield* select(signer);
@@ -88,6 +96,8 @@ export function* handleAirdrop(): Generator {
         address
       );
 
+      yield* call(fetchBalances, [address]);
+
       closeSnackbar(loaderSigningTx);
       yield put(snackbarsActions.remove(loaderSigningTx));
 
@@ -103,8 +113,6 @@ export function* handleAirdrop(): Generator {
 
     closeSnackbar(loaderAirdrop);
     yield put(snackbarsActions.remove(loaderAirdrop));
-
-    // yield* call(fetchBalances, [...Object.values(faucetTokenList)]);
   } catch (error) {
     console.log(error);
 
@@ -144,8 +152,8 @@ export function* init(
     const account = yield* call([signer, signer.getSelectedAccount]);
     yield* put(actions.setAddress(account.address));
 
-    // const allTokens = yield* select(tokens);
-    // yield* call(fetchBalances, Object.keys(allTokens));
+    const allTokens = yield* select(tokens);
+    yield* call(fetchBalances, Object.keys(allTokens));
 
     const balance = yield* call(balanceOf, ALPH_TOKEN_ID, account.address);
     yield* put(actions.setBalance(balance));
@@ -183,7 +191,7 @@ export function* handleConnect(
 
 export function* handleDisconnect(): Generator {
   try {
-    // const { loadedPages } = yield* select(positionsList);
+    const { loadedPages } = yield* select(positionsList);
 
     yield* put(actions.resetState());
 
@@ -195,24 +203,59 @@ export function* handleDisconnect(): Generator {
       })
     );
 
-    // yield* put(positionsActions.setPositionsList([]));
-    // yield* put(positionsActions.setPositionsListLength(0n));
-    // yield* put(
-    //   positionsActions.setPositionsListLoadedStatus({
-    //     indexes: Object.keys(loadedPages).map((key) => Number(key)),
-    //     isLoaded: false,
-    //   })
-    // );
+    yield* put(positionsActions.setPositionsList([]));
+    yield* put(positionsActions.setPositionsListLength(0n));
+    yield* put(
+      positionsActions.setPositionsListLoadedStatus({
+        indexes: Object.keys(loadedPages).map((key) => Number(key)),
+        isLoaded: false,
+      })
+    );
 
-    // yield* put(
-    //   positionsActions.setCurrentPositionTicks({
-    //     lowerTick: undefined,
-    //     upperTick: undefined,
-    //   })
-    // );
+    yield* put(
+      positionsActions.setCurrentPositionTicks({
+        lowerTick: undefined,
+        upperTick: undefined,
+      })
+    );
   } catch (error) {
     console.log(error);
   }
+}
+
+export function* fetchBalances(tokens: string[]): Generator {
+  const walletAddress = yield* select(address);
+  const fungibleToken = FungibleToken.load();
+
+  if (!walletAddress) {
+    return;
+  }
+
+  yield* put(actions.setIsBalanceLoading(true));
+
+  const { balance, tokenBalances } = yield* all({
+    balance: call(getBalance, walletAddress),
+    tokenBalances: call(getTokenBalances, tokens, fungibleToken, walletAddress),
+  });
+
+  yield* put(actions.setBalance(BigInt(balance)));
+
+  yield* put(
+    actions.addTokenBalances(
+      tokenBalances.map(([address, balance]) => {
+        return {
+          address,
+          balance,
+        };
+      })
+    )
+  );
+
+  yield* put(actions.setIsBalanceLoading(false));
+}
+
+export function* handleGetBalances(action: PayloadAction<string[]>): Generator {
+  yield* call(fetchBalances, action.payload);
 }
 
 export function* connectHandler(): Generator {
@@ -227,6 +270,14 @@ export function* airdropSaga(): Generator {
   yield takeLeading(actions.airdrop, handleAirdrop);
 }
 
+export function* getBalancesHandler(): Generator {
+  yield takeLeading(actions.getBalances, handleGetBalances);
+}
+
 export function* walletSaga(): Generator {
-  yield all([airdropSaga, connectHandler, disconnectHandler].map(spawn));
+  yield all(
+    [airdropSaga, connectHandler, disconnectHandler, getBalancesHandler].map(
+      spawn
+    )
+  );
 }

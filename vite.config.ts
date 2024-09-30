@@ -3,10 +3,11 @@ import react from "@vitejs/plugin-react";
 import topLevelAwait from "vite-plugin-top-level-await";
 import wasm from "vite-plugin-wasm";
 import { compression } from "vite-plugin-compression2";
+import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), topLevelAwait(), wasm(), compression()],
+  plugins: [react(), topLevelAwait(), wasm(), compression(), nodePolyfills()],
   resolve: {
     alias: {
       "@components": "/src/components",
@@ -30,5 +31,7 @@ export default defineConfig({
   },
   define: {
     "process.env.ALEPHIUM_CONTRACT_DEBUG_MESSAGE": false,
+    "process.browser": `"test"`,
+    "process.version": `"test"`,
   },
 });
