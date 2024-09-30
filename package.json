@@ -13,7 +13,7 @@
     "@alephium/web3": "^1.7.3",
     "@alephium/web3-react": "^1.7.3",
     "@emotion/styled": "^11.13.0",
-    "@invariant-labs/alph-sdk": "^0.0.8",
+    "@invariant-labs/alph-sdk": "^0.0.10",
     "@mui/icons-material": "^6.1.1",
     "@mui/material": "^6.1.1",
     "@nivo/line": "^0.87.0",

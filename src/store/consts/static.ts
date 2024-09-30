@@ -34,7 +34,6 @@ export const STABLECOIN_ADDRESSES: string[] = [];
 export const tokensPrices: Record<Network, Record<string, TokenPriceData>> = {
   [Network.Testnet]: { USDC_TEST: { price: 1 }, BTC_TEST: { price: 64572.0 } },
   [Network.Mainnet]: {},
-  [Network.Local]: {},
   [Network.Devnet]: {},
 };
 
@@ -137,7 +136,6 @@ export const DEFAULT_TOKENS = ["bitcoin", "ethereum", "usd-coin", "alephium"];
 export const bestTiers: Record<Network, BestTier[]> = {
   [Network.Testnet]: bestTiersCreator(Network.Testnet),
   [Network.Mainnet]: [],
-  [Network.Local]: bestTiersCreator(Network.Local),
   [Network.Devnet]: bestTiersCreator(Network.Devnet),
 };
 
@@ -154,7 +152,6 @@ export const commonTokensForNetworks: Record<Network, string[]> = {
     MAINNET_USDC.address,
     MAINNET_ALPH.address,
   ],
-  [Network.Local]: [],
   [Network.Devnet]: [],
 };
 
