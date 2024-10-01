@@ -7,6 +7,7 @@ import {
 import { walletSliceName, reducer as walletReducer } from "./wallet";
 import { positionsSliceName, reducer as positionsReducer } from "./positions";
 import { poolsSliceName, reducer as poolsReducer } from "./pools";
+import { swapSliceName, reducer as swapReducer } from "./swap";
 
 const combinedReducers = combineReducers({
   [snackbarsSliceName]: snackbarsReducer,
@@ -14,6 +15,7 @@ const combinedReducers = combineReducers({
   [walletSliceName]: walletReducer,
   [positionsSliceName]: positionsReducer,
   [poolsSliceName]: poolsReducer,
+  [swapSliceName]: swapReducer,
 });
 
 export default combinedReducers;
