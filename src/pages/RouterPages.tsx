@@ -4,10 +4,11 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import RootPage from "./RootPage";
-import NewPositionPage from "./NewPositionPage";
 import ListPage from "./ListPage";
+import NewPositionPage from "./NewPositionPage";
+import RootPage from "./RootPage";
 import SinglePositionPage from "./SinglePositionPage";
+import StatsPage from "./StatsPage";
 import SwapPage from "./SwapPage";
 
 export const router = createBrowserRouter(
@@ -15,6 +16,7 @@ export const router = createBrowserRouter(
     <Route path="/" element={<RootPage />}>
       <Route path="/exchange/:item1?/:item2?" element={<SwapPage />} />
       <Route path="/liquidity" element={<ListPage />} />
+      <Route path="/statistics" element={<StatsPage />} />
       <Route
         path="/newPosition/:item1?/:item2?/:item3?"
         element={<NewPositionPage />}

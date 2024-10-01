@@ -396,6 +396,35 @@ export const parseFeeToPathFee = (fee: bigint): string => {
   );
 };
 
+export const getTokenMetadata = async (
+  tokens: string[],
+  fungibleToken: FungibleToken
+): Promise<Record<string, Token>> => {
+  const promises = tokens.flatMap((token) => {
+    return [
+      fungibleToken.getTokenSymbol(token),
+      fungibleToken.getTokenName(token),
+      fungibleToken.getTokenDecimals(token),
+    ];
+  });
+  const results = await Promise.all(promises);
+
+  const newTokens: Record<string, Token> = {};
+  tokens.forEach((token, index) => {
+    const baseIndex = index * 3;
+    newTokens[token] = {
+      symbol: results[baseIndex] ? (results[baseIndex] as string) : "UNKNOWN",
+      address: token,
+      name: results[baseIndex + 1] ? (results[baseIndex + 1] as string) : "",
+      decimals: results[baseIndex + 2] as bigint,
+      balance: 0n,
+      logoURI: icons.unknownToken,
+      isUnknown: true,
+    };
+  });
+  return newTokens;
+};
+
 export const getTokenDataByAddresses = async (
   tokens: string[],
   fungibleToken: FungibleToken,
