@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import EventsHandlers from "@containers/EventHandlers/index";
-// import FooterWrapper from "@containers/FooterWrapper";
+import FooterWrapper from "@containers/FooterWrapper";
 import HeaderWrapper from "@containers/HeaderWrapper/HeaderWrapper";
 import { Grid } from "@mui/material";
 import { actions as alephiumConnectionActions } from "@store/reducers/connection";
@@ -40,6 +40,7 @@ const RootPage: React.FC = React.memo(() => {
           <Grid className={classes.body}>
             <Outlet />
           </Grid>
+          <FooterWrapper />
         </Grid>
       </div>
     </>
