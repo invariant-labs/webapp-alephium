@@ -56,7 +56,7 @@ export function* handleAirdrop(): Generator {
   }
 
   const loaderAirdrop = createLoaderKey();
-  let loaderSigningTx = createLoaderKey();
+  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -74,45 +74,45 @@ export function* handleAirdrop(): Generator {
 
     const faucetTokenList = getFaucetTokenList(network);
 
-    for (const ticker in faucetTokenList) {
-      const address = faucetTokenList[ticker as keyof typeof faucetTokenList];
-      const airdropAmount =
-        TokenAirdropAmount[ticker as keyof typeof faucetTokenList];
+    yield put(
+      snackbarsActions.add({
+        message: "Signing transaction...",
+        variant: "pending",
+        persist: true,
+        key: loaderSigningTx,
+      })
+    );
 
-      loaderSigningTx = createLoaderKey();
-      yield put(
-        snackbarsActions.add({
-          message: "Signing transaction...",
-          variant: "pending",
-          persist: true,
-          key: loaderSigningTx,
-        })
-      );
+    const airdropTxId = yield* call(
+      [fungibleToken, fungibleToken.airdrop],
+      walletSigner,
+      TokenAirdropAmount.BTC as TokenAmount,
+      faucetTokenList.BTC,
+      TokenAirdropAmount.ETH as TokenAmount,
+      faucetTokenList.ETH,
+      TokenAirdropAmount.USDC as TokenAmount,
+      faucetTokenList.USDC,
+      address
+    );
 
-      const txId = yield* call(
-        [fungibleToken, fungibleToken.mint],
-        walletSigner,
-        airdropAmount as TokenAmount,
-        address
-      );
-
-      yield* call(fetchBalances, [address]);
-
-      closeSnackbar(loaderSigningTx);
-      yield put(snackbarsActions.remove(loaderSigningTx));
-
-      yield* put(
-        snackbarsActions.add({
-          message: `Airdropped ${ticker} token`,
-          variant: "success",
-          persist: false,
-          txid: txId,
-        })
-      );
-    }
+    closeSnackbar(loaderSigningTx);
+    yield put(snackbarsActions.remove(loaderSigningTx));
 
     closeSnackbar(loaderAirdrop);
     yield put(snackbarsActions.remove(loaderAirdrop));
+
+    const tokenNames = Object.keys(faucetTokenList).join(", ");
+
+    yield* put(
+      snackbarsActions.add({
+        message: `Airdropped ${tokenNames} tokens`,
+        variant: "success",
+        persist: false,
+        txid: airdropTxId,
+      })
+    );
+
+    yield* call(fetchBalances, [...Object.values(faucetTokenList)]);
   } catch (error) {
     console.log(error);
 
