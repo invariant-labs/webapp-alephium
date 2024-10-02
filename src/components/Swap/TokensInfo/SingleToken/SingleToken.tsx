@@ -6,6 +6,7 @@ import icons from "@static/icons";
 import { formatNumber } from "@utils/utils";
 import { VariantType } from "notistack";
 import { TooltipHover } from "@components/TooltipHover/TooltipHover";
+import { addressFromTokenId } from "@alephium/web3";
 interface IProps {
   token?: SwapToken;
   tokenPrice?: number;
@@ -71,7 +72,9 @@ const SingleToken: React.FC<IProps> = ({
             {token && (
               <TooltipHover text="Token details">
                 <a
-                  href={`https://testnet.alephium.org/addresses/${token.assetAddress}`}
+                  href={`https://testnet.alephium.org/addresses/${addressFromTokenId(
+                    token.assetAddress
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(event) => {

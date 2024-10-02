@@ -23,6 +23,7 @@ import { SwapToken } from "@store/selectors/wallet";
 import Scrollbars from "rc-scrollbars";
 import icons from "@static/icons";
 import { TooltipHover } from "@components/TooltipHover/TooltipHover";
+import { addressFromTokenId } from "@alephium/web3";
 
 export interface ISelectTokenModal {
   tokens: Record<string, SwapToken>;
@@ -343,7 +344,9 @@ export const SelectTokenModal: React.FC<ISelectTokenModal> = ({
                           direction="column"
                         >
                           <a
-                            href={`https://testnet.alephium.org/addresses/${token.assetAddress}`}
+                            href={`https://testnet.alephium.org/addresses/${addressFromTokenId(
+                              token.assetAddress
+                            )}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(event) => {
