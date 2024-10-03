@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --check ."
   },
   "dependencies": {
     "@alephium/web3": "^1.7.3",
