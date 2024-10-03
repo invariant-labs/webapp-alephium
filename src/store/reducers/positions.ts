@@ -167,7 +167,10 @@ const positionsSlice = createSlice({
       state.positionsList.loading = true;
       return state;
     },
-    getRemainingPositions(state, _action: PayloadAction<void>) {
+    getRemainingPositions(
+      state,
+      _action: PayloadAction<{ setLoaded: boolean }>
+    ) {
       state.positionsList.loading = true;
       return state;
     },
