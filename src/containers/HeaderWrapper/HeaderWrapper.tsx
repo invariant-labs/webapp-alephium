@@ -34,11 +34,13 @@ export const HeaderWrapper: React.FC = () => {
         })
       );
     }
+  }, [account, signer]);
 
-    if (!account && !signer) {
+  useEffect(() => {
+    if (!account && !signer && walletStatus === Status.Initialized) {
       dispatch(walletActions.disconnect());
     }
-  }, [account, signer]);
+  }, [account, signer, walletStatus]);
 
   const defaultTestnetRPC = useMemo(() => {
     const lastRPC = localStorage.getItem(

@@ -41,6 +41,7 @@ export const useStyles = makeStyles()((theme: Theme) => ({
 
     [theme.breakpoints.down("sm")]: {
       width: 28,
+      height: 28,
     },
   },
   arrows: {
