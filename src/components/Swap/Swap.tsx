@@ -305,7 +305,9 @@ export const Swap: React.FC<ISwap> = ({
       tokenFrom !== null &&
       tokenTo !== null &&
       tokenFrom !== tokenTo &&
-      swapData
+      swapData &&
+      tokens[tokenFrom] &&
+      tokens[tokenTo]
     ) {
       if (inputRef === inputTarget.FROM) {
         simulateSwap({
