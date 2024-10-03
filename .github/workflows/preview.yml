@@ -16,12 +16,12 @@ jobs:
           node-version: '18'
       - name: install
         run: npm i
-      - name: build
-        run: npm run build
       - name: prettify
         run: npm run prettify
-      - name: build
+      - name: lint
         run: npm run lint
+      - name: build
+        run: npm run build
 
   upload:
     runs-on: ubuntu-latest
