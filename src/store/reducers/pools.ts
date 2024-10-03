@@ -81,6 +81,7 @@ export interface FetchTicksAndTickMaps {
   tokenFrom: string;
   tokenTo: string;
   allPools: PoolWithPoolKey[];
+  poolKey?: PoolKey;
 }
 
 const network =

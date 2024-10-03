@@ -297,14 +297,24 @@ export const NewPositionWrapper: React.FC<IProps> = ({
   ]);
 
   useEffect(() => {
-    if (poolKey !== "") {
-      dispatch(
-        positionsActions.getCurrentPlotTicks({
-          poolKey: allPoolKeys[poolKey],
-          isXtoY,
-          fetchTicksAndTickmap: true,
-        })
-      );
+    if (poolKey !== "" && !isWaitingForNewPool) {
+      const isCurrentTokenX = isXtoY
+        ? allPoolKeys[poolKey].tokenX === tokenA
+        : allPoolKeys[poolKey].tokenX === tokenB;
+
+      const isCurrentTokenY = isXtoY
+        ? allPoolKeys[poolKey].tokenY === tokenB
+        : allPoolKeys[poolKey].tokenY === tokenA;
+
+      if (isCurrentTokenX && isCurrentTokenY) {
+        dispatch(
+          positionsActions.getCurrentPlotTicks({
+            poolKey: allPoolKeys[poolKey],
+            isXtoY,
+            fetchTicksAndTickmap: true,
+          })
+        );
+      }
     }
   }, [isWaitingForNewPool, tokenA, tokenB, poolKey, allPoolKeys]);
 

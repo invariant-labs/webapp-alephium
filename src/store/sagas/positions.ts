@@ -281,6 +281,7 @@ export function* handleGetCurrentPlotTicks(
             tokenFrom: allTokens[poolKey.tokenX].address,
             tokenTo: allTokens[poolKey.tokenY].address,
             allPools,
+            poolKey,
           },
         };
 
