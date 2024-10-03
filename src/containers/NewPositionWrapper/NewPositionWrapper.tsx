@@ -59,6 +59,7 @@ import {
   status,
   poolTokens,
   balance,
+  poolTokensWithInitPool,
 } from "@store/selectors/wallet";
 import { VariantType } from "notistack";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -80,7 +81,6 @@ export const NewPositionWrapper: React.FC<IProps> = ({
   const dispatch = useDispatch();
   const walletAddress = useSelector(address);
   const alphBalance = useSelector(balance);
-  const tokens = useSelector(poolTokens);
   const walletStatus = useSelector(status);
   const allPools = useSelector(poolsArraySortedByFees);
   const allPoolKeys = useSelector(poolKeys);
@@ -105,6 +105,9 @@ export const NewPositionWrapper: React.FC<IProps> = ({
   const currentNetwork = useSelector(networkType);
 
   const [poolIndex, setPoolIndex] = useState<number | null>(null);
+  const tokens = useSelector(
+    poolIndex === null ? poolTokensWithInitPool : poolTokens
+  );
 
   const [poolKey, setPoolKey] = useState<string>("");
   const [progress, setProgress] = useState<ProgressState>("none");

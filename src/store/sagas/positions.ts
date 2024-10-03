@@ -42,7 +42,12 @@ import {
   tickMaps,
   tokens,
 } from "@store/selectors/pools";
-import { address, signer } from "@store/selectors/wallet";
+import {
+  address,
+  poolTokens,
+  poolTokensWithInitPool,
+  signer,
+} from "@store/selectors/wallet";
 import { closeSnackbar } from "notistack";
 import {
   all,
@@ -58,7 +63,6 @@ import {
 import { fetchTicksAndTickMaps, fetchTokens } from "./pools";
 import { fetchBalances } from "./wallet";
 import { positionsList } from "@store/selectors/positions";
-import { balanceOf } from "@invariant-labs/alph-sdk/dist/src/utils";
 
 function* handleInitPosition(
   action: PayloadAction<InitPositionData>
@@ -100,6 +104,9 @@ function* handleInitPosition(
       );
     }
 
+    const allTokens = yield* select(
+      initPool ? poolTokensWithInitPool : poolTokens
+    );
     const invAddress = yield* select(invariantAddress);
     const invariant = yield* call(Invariant.load, invAddress);
 
@@ -114,8 +121,8 @@ function* handleInitPosition(
         true
       );
 
-    const xBalance = yield* call(balanceOf, tokenX, walletAddress);
-    const yBalance = yield* call(balanceOf, tokenY, walletAddress);
+    const xBalance = allTokens[tokenX].balance;
+    const yBalance = allTokens[tokenY].balance;
     const xAmount =
       xBalance > xAmountWithSlippage ? xAmountWithSlippage : xBalance;
     const yAmount =
