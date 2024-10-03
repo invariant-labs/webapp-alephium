@@ -19,6 +19,7 @@ import {
   ensureError,
   findPairs,
   isErrorMessage,
+  isTransactionSuccess,
   poolKeyToString,
   printBigint,
 } from "@utils/utils";
@@ -53,7 +54,6 @@ export function* handleSwap(
   }
 
   const loaderSwappingTokens = createLoaderKey();
-  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -108,15 +108,6 @@ export function* handleSwap(
     const amountInWithBalance =
       balance > calculatedAmountIn ? calculatedAmountIn : balance;
 
-    yield put(
-      snackbarsActions.add({
-        message: "Signing transaction...",
-        variant: "pending",
-        persist: true,
-        key: loaderSigningTx,
-      })
-    );
-
     const swapTxId = yield* call(
       [invariant, invariant.swapWithSlippage],
       walletSigner,
@@ -129,8 +120,10 @@ export function* handleSwap(
       amountInWithBalance as TokenAmount
     );
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
+    const result = yield* call(isTransactionSuccess, swapTxId);
+    if (!result) {
+      throw new Error("Transaction failed");
+    }
 
     closeSnackbar(loaderSwappingTokens);
     yield put(snackbarsActions.remove(loaderSwappingTokens));
@@ -169,8 +162,6 @@ export function* handleSwap(
 
     closeSnackbar(loaderSwappingTokens);
     yield put(snackbarsActions.remove(loaderSwappingTokens));
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
 
     if (isErrorMessage(error.message)) {
       yield put(

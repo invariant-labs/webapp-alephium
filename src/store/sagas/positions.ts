@@ -18,6 +18,7 @@ import {
   ensureError,
   getLiquidityTicksByPositionsList,
   isErrorMessage,
+  isTransactionSuccess,
   poolKeyToString,
 } from "@utils/utils";
 import {
@@ -79,7 +80,6 @@ function* handleInitPosition(
   const { tokenX, tokenY, feeTier } = poolKeyData;
 
   const loaderCreatePosition = createLoaderKey();
-  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -129,15 +129,6 @@ function* handleInitPosition(
       yBalance > yAmountWithSlippage ? yAmountWithSlippage : yBalance;
 
     if (initPool) {
-      yield put(
-        snackbarsActions.add({
-          message: "Signing transaction...",
-          variant: "pending",
-          persist: true,
-          key: loaderSigningTx,
-        })
-      );
-
       const createPoolTxId = yield* call(
         [invariant, invariant.createPool],
         walletSigner,
@@ -145,8 +136,10 @@ function* handleInitPosition(
         spotSqrtPrice as SqrtPrice
       );
 
-      closeSnackbar(loaderSigningTx);
-      yield put(snackbarsActions.remove(loaderSigningTx));
+      const result = yield* call(isTransactionSuccess, createPoolTxId);
+      if (!result) {
+        throw new Error("Transaction failed");
+      }
 
       yield* put(
         snackbarsActions.add({
@@ -157,15 +150,6 @@ function* handleInitPosition(
         })
       );
     }
-
-    yield put(
-      snackbarsActions.add({
-        message: "Signing transaction...",
-        variant: "pending",
-        persist: true,
-        key: loaderSigningTx,
-      })
-    );
 
     const createPositionTxId = yield* call(
       [invariant, invariant.createPosition],
@@ -180,8 +164,10 @@ function* handleInitPosition(
       slippageTolerance as Percentage
     );
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
+    const result = yield* call(isTransactionSuccess, createPositionTxId);
+    if (!result) {
+      throw new Error("Transaction failed");
+    }
 
     yield* put(actions.setInitPositionSuccess(true));
 
@@ -216,9 +202,6 @@ function* handleInitPosition(
 
     closeSnackbar(loaderCreatePosition);
     yield put(snackbarsActions.remove(loaderCreatePosition));
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
-
     if (isErrorMessage(error.message)) {
       yield put(
         snackbarsActions.add({
@@ -380,7 +363,6 @@ export function* handleClaimFee(action: PayloadAction<HandleClaimFee>) {
   const { index, addressTokenX, addressTokenY } = action.payload;
 
   const loaderKey = createLoaderKey();
-  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -407,23 +389,16 @@ export function* handleClaimFee(action: PayloadAction<HandleClaimFee>) {
     const invAddress = yield* select(invariantAddress);
     const invariant = yield* call(Invariant.load, invAddress);
 
-    yield put(
-      snackbarsActions.add({
-        message: "Signing transaction...",
-        variant: "pending",
-        persist: true,
-        key: loaderSigningTx,
-      })
-    );
-
     const claimTxId = yield* call(
       [invariant, invariant.claimFee],
       walletSigner,
       index
     );
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
+    const result = yield* call(isTransactionSuccess, claimTxId);
+    if (!result) {
+      throw new Error("Transaction failed");
+    }
 
     closeSnackbar(loaderKey);
     yield put(snackbarsActions.remove(loaderKey));
@@ -445,8 +420,6 @@ export function* handleClaimFee(action: PayloadAction<HandleClaimFee>) {
     const error = ensureError(e);
     console.log(error);
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
     closeSnackbar(loaderKey);
     yield put(snackbarsActions.remove(loaderKey));
 
@@ -510,7 +483,6 @@ export function* handleClosePosition(action: PayloadAction<ClosePositionData>) {
     action.payload;
 
   const loaderKey = createLoaderKey();
-  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -554,23 +526,16 @@ export function* handleClosePosition(action: PayloadAction<ClosePositionData>) {
     );
     yield* join(fetchTask);
 
-    yield put(
-      snackbarsActions.add({
-        message: "Signing transaction...",
-        variant: "pending",
-        persist: true,
-        key: loaderSigningTx,
-      })
-    );
-
     const removePositionTxId = yield* call(
       [invariant, invariant.removePosition],
       walletSigner,
       positionIndex
     );
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
+    const result = yield* call(isTransactionSuccess, removePositionTxId);
+    if (!result) {
+      throw new Error("Transaction failed");
+    }
 
     closeSnackbar(loaderKey);
     yield put(snackbarsActions.remove(loaderKey));
@@ -591,8 +556,6 @@ export function* handleClosePosition(action: PayloadAction<ClosePositionData>) {
     const error = ensureError(e);
     console.log(error);
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
     closeSnackbar(loaderKey);
     yield put(snackbarsActions.remove(loaderKey));
 
