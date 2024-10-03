@@ -491,6 +491,8 @@ export function* handleGetSinglePosition(action: PayloadAction<bigint>) {
     );
   } catch (e) {
     console.log(e);
+    yield* put(actions.setCurrentPositionTickLoading(false));
+    yield* put(actions.setPositionsList([]));
   }
 }
 

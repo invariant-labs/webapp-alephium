@@ -183,7 +183,9 @@ export const WrappedPositionsList: React.FC = () => {
         onConnect: async () => {
           await connect();
         },
-        descCustomText: "You have no positions.",
+        title: "Start exploring liquidity pools right now!",
+        descCustomText:
+          "Or, connect your wallet to see existing positions, and create a new one!",
       }}
       pageChanged={(page) => {
         const index = positionListPageToQueryPage(page);
