@@ -61,6 +61,7 @@ import {
   TokenPriceData,
 } from "@store/consts/types";
 import icons from "@static/icons";
+import { web3 } from "@alephium/web3";
 
 export const createLoaderKey = () =>
   (new Date().getMilliseconds() + Math.random()).toString();
@@ -1449,4 +1450,11 @@ export const promiseAllUntilFulfilled = async <T>(
   }
 
   return (results as PromiseFulfilledResult<T>[]).map((result) => result.value);
+};
+
+export const isTransactionSuccess = async (txId: string): Promise<boolean> => {
+  const result = await web3
+    .getCurrentNodeProvider()
+    .transactions.getTransactionsDetailsTxid(txId);
+  return result.scriptExecutionOk;
 };

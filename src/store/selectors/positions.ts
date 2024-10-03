@@ -61,10 +61,10 @@ export const positionsWithPoolsData = createSelector(
     for (let index = 0; index < list.length; index++) {
       const position = list[index];
       const tokenX = Object.values(tokens).find(
-        (token) => token.assetAddress === position.poolKey.tokenX
+        (token) => token.assetAddress === position?.poolKey.tokenX
       );
       const tokenY = Object.values(tokens).find(
-        (token) => token.assetAddress === position.poolKey.tokenY
+        (token) => token.assetAddress === position?.poolKey.tokenY
       );
 
       if (!tokenX) {

@@ -167,7 +167,10 @@ const positionsSlice = createSlice({
       state.positionsList.loading = true;
       return state;
     },
-    getRemainingPositions(state, _action: PayloadAction<void>) {
+    getRemainingPositions(
+      state,
+      _action: PayloadAction<{ setLoaded: boolean }>
+    ) {
       state.positionsList.loading = true;
       return state;
     },
@@ -223,6 +226,10 @@ const positionsSlice = createSlice({
         ...action.payload,
         loading: false,
       };
+      return state;
+    },
+    setCurrentPositionTickLoading(state, action: PayloadAction<boolean>) {
+      state.currentPositionTicks.loading = action.payload;
       return state;
     },
     claimFee(state, _action: PayloadAction<HandleClaimFee>) {

@@ -19,6 +19,7 @@ import {
   ensureError,
   findPairs,
   isErrorMessage,
+  isTransactionSuccess,
   poolKeyToString,
   printBigint,
 } from "@utils/utils";
@@ -53,7 +54,6 @@ export function* handleSwap(
   }
 
   const loaderSwappingTokens = createLoaderKey();
-  const loaderSigningTx = createLoaderKey();
 
   try {
     yield put(
@@ -108,15 +108,6 @@ export function* handleSwap(
     const amountInWithBalance =
       balance > calculatedAmountIn ? calculatedAmountIn : balance;
 
-    yield put(
-      snackbarsActions.add({
-        message: "Signing transaction...",
-        variant: "pending",
-        persist: true,
-        key: loaderSigningTx,
-      })
-    );
-
     const swapTxId = yield* call(
       [invariant, invariant.swapWithSlippage],
       walletSigner,
@@ -129,8 +120,10 @@ export function* handleSwap(
       amountInWithBalance as TokenAmount
     );
 
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
+    const result = yield* call(isTransactionSuccess, swapTxId);
+    if (!result) {
+      throw new Error("Transaction failed");
+    }
 
     closeSnackbar(loaderSwappingTokens);
     yield put(snackbarsActions.remove(loaderSwappingTokens));
@@ -169,8 +162,6 @@ export function* handleSwap(
 
     closeSnackbar(loaderSwappingTokens);
     yield put(snackbarsActions.remove(loaderSwappingTokens));
-    closeSnackbar(loaderSigningTx);
-    yield put(snackbarsActions.remove(loaderSigningTx));
 
     if (isErrorMessage(error.message)) {
       yield put(
@@ -255,6 +246,9 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
     let priceImpact = 0;
     let targetSqrtPrice = 0n;
     let fee = 0n;
+
+    let swapPossible = false;
+
     const errors = [];
 
     for (const pool of filteredPools) {
@@ -272,23 +266,20 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           xToY ? MIN_SQRT_PRICE : MAX_SQRT_PRICE
         );
 
-        if (result.insufficientLiquidity) {
+        if (result.swapStepLimitReached || result.insufficientLiquidity) {
           if (
             byAmountIn
               ? result.amountOut > insufficientLiquidityAmountOut
-              : result.amountIn < insufficientLiquidityAmountOut
+              : result.amountIn > insufficientLiquidityAmountOut
           ) {
             insufficientLiquidityAmountOut = byAmountIn
               ? result.amountOut
               : result.amountIn;
             fee = pool.poolKey.feeTier.fee;
-            errors.push(SwapError.InsufficientLiquidity);
+            priceImpact = 1;
+            errors.push(SwapError.MaxSwapStepsReached);
           }
-          continue;
-        }
 
-        if (result.swapStepLimitReached) {
-          errors.push(SwapError.MaxSwapStepsReached);
           continue;
         }
 
@@ -307,6 +298,7 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
             ? result.amountOut > amountOut
             : result.amountIn < amountOut
         ) {
+          swapPossible = true;
           amountOut = byAmountIn ? result.amountOut : result.amountIn;
           poolKey = pool.poolKey;
           priceImpact = +printBigint(
@@ -321,10 +313,14 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
       }
     }
 
+    const validatedAmountOut = swapPossible
+      ? amountOut
+      : insufficientLiquidityAmountOut;
+
     yield put(
       actions.setSimulateResult({
-        poolKey,
-        amountOut: amountOut ? amountOut : insufficientLiquidityAmountOut,
+        poolKey: swapPossible ? poolKey : null,
+        amountOut: validatedAmountOut,
         priceImpact,
         targetSqrtPrice,
         fee,

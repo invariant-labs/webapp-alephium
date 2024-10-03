@@ -40,6 +40,7 @@ export default tseslint.config(
       "react-hooks/rules-of-hooks": "error",
       "@typescript-eslint/no-unused-expressions": "off",
       "@typescript-eslint/no-empty-object-type": "off",
+      "no-extra-boolean-cast": "off",
     },
   }
 );

@@ -9,6 +9,7 @@ import { tokens } from "./pools";
 import { ALPH_TOKEN_ID } from "@alephium/web3";
 import {
   POOL_SAFE_TRANSACTION_FEE,
+  POSITION_SAFE_TRANSACTION_FEE,
   SWAP_SAFE_TRANSACTION_FEE,
 } from "@store/consts/static";
 
@@ -91,7 +92,37 @@ export const poolTokens = createSelector(
         balance:
           val.address.toString() === ALPH_TOKEN_ID
             ? BigInt(
-                Math.max(Number(alphBalance - POOL_SAFE_TRANSACTION_FEE), 0)
+                Math.max(Number(alphBalance - POSITION_SAFE_TRANSACTION_FEE), 0)
+              )
+            : allAccounts[val.address.toString()]?.balance ?? BigInt(0),
+      };
+    });
+
+    return poolTokens;
+  }
+);
+
+export const poolTokensWithInitPool = createSelector(
+  tokensBalances,
+  tokens,
+  balance,
+  (allAccounts, tokens, alphBalance) => {
+    const poolTokens: Record<string, SwapToken> = {};
+    Object.entries(tokens).forEach(([key, val]) => {
+      poolTokens[key] = {
+        ...val,
+        assetAddress: val.address,
+        balance:
+          val.address.toString() === ALPH_TOKEN_ID
+            ? BigInt(
+                Math.max(
+                  Number(
+                    alphBalance -
+                      POOL_SAFE_TRANSACTION_FEE -
+                      POSITION_SAFE_TRANSACTION_FEE
+                  ),
+                  0
+                )
               )
             : allAccounts[val.address.toString()]?.balance ?? BigInt(0),
       };
