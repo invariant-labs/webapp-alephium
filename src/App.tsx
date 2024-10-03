@@ -10,7 +10,7 @@ import { filterConsoleMessages, messagesToHide } from "./hideErrors";
 import { AlephiumWalletProvider } from "@alephium/web3-react";
 import { web3 } from "@alephium/web3";
 
-// filterConsoleMessages(messagesToHide);
+filterConsoleMessages(messagesToHide);
 
 web3.setCurrentNodeProvider("https://node.testnet.alephium.org");
 
