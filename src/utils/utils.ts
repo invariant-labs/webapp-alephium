@@ -22,11 +22,11 @@ import {
   priceToSqrtPrice,
   Price,
   SqrtPrice,
-  Liquidity,
-} from "@invariant-labs/alph-sdk";
-import { PoolWithPoolKey } from "@store/reducers/pools";
-import { PlotTickData } from "@store/reducers/positions";
-import axios from "axios";
+  Liquidity
+} from '@invariant-labs/alph-sdk'
+import { PoolWithPoolKey } from '@store/reducers/pools'
+import { PlotTickData } from '@store/reducers/positions'
+import axios from 'axios'
 import {
   COINGECKO_QUERY_COOLDOWN,
   DEFAULT_TOKENS,
@@ -48,9 +48,9 @@ import {
   TESTNET_ETH,
   MAINNET_USDC,
   MAINNET_BTC,
-  MAINNET_ETH,
-} from "@store/consts/static";
-import { sleep } from "@store/sagas/wallet";
+  MAINNET_ETH
+} from '@store/consts/static'
+import { sleep } from '@store/sagas/wallet'
 import {
   CoinGeckoAPIData,
   FormatNumberThreshold,
@@ -58,140 +58,131 @@ import {
   PoolSnapshot,
   PrefixConfig,
   Token,
-  TokenPriceData,
-} from "@store/consts/types";
-import icons from "@static/icons";
-import { web3 } from "@alephium/web3";
+  TokenPriceData
+} from '@store/consts/types'
+import icons from '@static/icons'
+import { web3 } from '@alephium/web3'
 
-export const createLoaderKey = () =>
-  (new Date().getMilliseconds() + Math.random()).toString();
+export const createLoaderKey = () => (new Date().getMilliseconds() + Math.random()).toString()
 
 export const getInvariantAddress = (network: Network): string | null => {
   switch (network) {
     case Network.Testnet:
-      return "5FiTccBSAH9obLA4Q33hYrL3coPm2SE276rFPVttFPFnaxnC";
+      return '5FiTccBSAH9obLA4Q33hYrL3coPm2SE276rFPVttFPFnaxnC'
     default:
-      return null;
+      return null
   }
-};
+}
 
-export const showPrefix = (
-  nr: number,
-  config: PrefixConfig = defaultPrefixConfig
-): string => {
-  const abs = Math.abs(nr);
+export const showPrefix = (nr: number, config: PrefixConfig = defaultPrefixConfig): string => {
+  const abs = Math.abs(nr)
 
-  if (typeof config.B !== "undefined" && abs >= config.B) {
-    return "B";
+  if (typeof config.B !== 'undefined' && abs >= config.B) {
+    return 'B'
   }
 
-  if (typeof config.M !== "undefined" && abs >= config.M) {
-    return "M";
+  if (typeof config.M !== 'undefined' && abs >= config.M) {
+    return 'M'
   }
 
-  if (typeof config.K !== "undefined" && abs >= config.K) {
-    return "K";
+  if (typeof config.K !== 'undefined' && abs >= config.K) {
+    return 'K'
   }
 
-  return "";
-};
+  return ''
+}
 
 export const formatNumbers =
   (thresholds: FormatNumberThreshold[] = defaultThresholds) =>
   (value: string) => {
-    const num = Number(value);
-    const abs = Math.abs(num);
-    const threshold = thresholds
-      .sort((a, b) => a.value - b.value)
-      .find((thr) => abs < thr.value);
+    const num = Number(value)
+    const abs = Math.abs(num)
+    const threshold = thresholds.sort((a, b) => a.value - b.value).find(thr => abs < thr.value)
 
     const formatted = threshold
       ? (abs / (threshold.divider ?? 1)).toFixed(threshold.decimals)
-      : value;
+      : value
 
-    return num < 0 && threshold ? "-" + formatted : formatted;
-  };
+    return num < 0 && threshold ? '-' + formatted : formatted
+  }
 
 export const trimZeros = (numStr: string): string => {
   return numStr
-    .replace(/(\.\d*?)0+$/, "$1")
-    .replace(/^0+(\d)|(\d)0+$/gm, "$1$2")
-    .replace(/\.$/, "");
-};
+    .replace(/(\.\d*?)0+$/, '$1')
+    .replace(/^0+(\d)|(\d)0+$/gm, '$1$2')
+    .replace(/\.$/, '')
+}
 
 export const calcYPerXPriceByTickIndex = (
   tickIndex: bigint,
   xDecimal: bigint,
   yDecimal: bigint
 ): number => {
-  const sqrt = +printBigint(calculateSqrtPrice(tickIndex), PRICE_SCALE);
+  const sqrt = +printBigint(calculateSqrtPrice(tickIndex), PRICE_SCALE)
 
-  const proportion = sqrt * sqrt;
+  const proportion = sqrt * sqrt
 
-  return proportion / 10 ** Number(yDecimal - xDecimal);
-};
+  return proportion / 10 ** Number(yDecimal - xDecimal)
+}
 
 export const calcYPerXPriceBySqrtPrice = (
   sqrtPrice: bigint,
   xDecimal: bigint,
   yDecimal: bigint
 ): number => {
-  const sqrt = +printBigint(sqrtPrice, PRICE_SCALE);
+  const sqrt = +printBigint(sqrtPrice, PRICE_SCALE)
 
-  const proportion = sqrt * sqrt;
+  const proportion = sqrt * sqrt
 
-  return proportion / 10 ** Number(yDecimal - xDecimal);
-};
+  return proportion / 10 ** Number(yDecimal - xDecimal)
+}
 
 export const trimLeadingZeros = (amount: string): string => {
-  const amountParts = amount.split(".");
+  const amountParts = amount.split('.')
 
   if (!amountParts.length) {
-    return "0";
+    return '0'
   }
 
   if (amountParts.length === 1) {
-    return amountParts[0];
+    return amountParts[0]
   }
 
-  const reversedDec = Array.from(amountParts[1]).reverse();
-  const firstNonZero = reversedDec.findIndex((char) => char !== "0");
+  const reversedDec = Array.from(amountParts[1]).reverse()
+  const firstNonZero = reversedDec.findIndex(char => char !== '0')
 
   if (firstNonZero === -1) {
-    return amountParts[0];
+    return amountParts[0]
   }
 
-  const trimmed = reversedDec
-    .slice(firstNonZero, reversedDec.length)
-    .reverse()
-    .join("");
+  const trimmed = reversedDec.slice(firstNonZero, reversedDec.length).reverse().join('')
 
-  return `${amountParts[0]}.${trimmed}`;
-};
+  return `${amountParts[0]}.${trimmed}`
+}
 
 export const getScaleFromString = (value: string): number => {
-  const parts = value.split(".");
+  const parts = value.split('.')
 
   if ((parts?.length ?? 0) < 2) {
-    return 0;
+    return 0
   }
 
-  return parts[1]?.length ?? 0;
-};
+  return parts[1]?.length ?? 0
+}
 
 export const toMaxNumericPlaces = (num: number, places: number): string => {
-  const log = Math.floor(Math.log10(num));
+  const log = Math.floor(Math.log10(num))
 
   if (log >= places) {
-    return num.toFixed(0);
+    return num.toFixed(0)
   }
 
   if (log >= 0) {
-    return num.toFixed(places - log - 1);
+    return num.toFixed(places - log - 1)
   }
 
-  return num.toFixed(places + Math.abs(log) - 1);
-};
+  return num.toFixed(places + Math.abs(log) - 1)
+}
 
 export const calcPriceByTickIndex = (
   amountTickIndex: bigint,
@@ -199,14 +190,14 @@ export const calcPriceByTickIndex = (
   xDecimal: bigint,
   yDecimal: bigint
 ): number => {
-  const price = calcYPerXPriceByTickIndex(amountTickIndex, xDecimal, yDecimal);
+  const price = calcYPerXPriceByTickIndex(amountTickIndex, xDecimal, yDecimal)
 
   if (isXtoY) {
-    return price;
+    return price
   }
 
-  return price === 0 ? Number.MAX_SAFE_INTEGER : 1 / price;
-};
+  return price === 0 ? Number.MAX_SAFE_INTEGER : 1 / price
+}
 
 export const calcPriceBySqrtPrice = (
   sqrtPrice: bigint,
@@ -214,12 +205,10 @@ export const calcPriceBySqrtPrice = (
   xDecimal: bigint,
   yDecimal: bigint
 ): number => {
-  const price =
-    calcYPerXPriceBySqrtPrice(sqrtPrice, xDecimal, yDecimal) **
-    (isXtoY ? 1 : -1);
+  const price = calcYPerXPriceBySqrtPrice(sqrtPrice, xDecimal, yDecimal) ** (isXtoY ? 1 : -1)
 
-  return price;
-};
+  return price
+}
 export const createPlaceholderLiquidityPlot = (
   isXtoY: boolean,
   yValueToFill: number,
@@ -227,300 +216,267 @@ export const createPlaceholderLiquidityPlot = (
   tokenXDecimal: bigint,
   tokenYDecimal: bigint
 ) => {
-  const ticksData: PlotTickData[] = [];
+  const ticksData: PlotTickData[] = []
 
-  const min = getMinTick(tickSpacing);
-  const max = getMaxTick(tickSpacing);
+  const min = getMinTick(tickSpacing)
+  const max = getMaxTick(tickSpacing)
 
-  const minPrice = calcPriceByTickIndex(
-    min,
-    isXtoY,
-    tokenXDecimal,
-    tokenYDecimal
-  );
+  const minPrice = calcPriceByTickIndex(min, isXtoY, tokenXDecimal, tokenYDecimal)
 
   ticksData.push({
     x: minPrice,
     y: yValueToFill,
-    index: min,
-  });
+    index: min
+  })
 
-  const maxPrice = calcPriceByTickIndex(
-    max,
-    isXtoY,
-    tokenXDecimal,
-    tokenYDecimal
-  );
+  const maxPrice = calcPriceByTickIndex(max, isXtoY, tokenXDecimal, tokenYDecimal)
 
   ticksData.push({
     x: maxPrice,
     y: yValueToFill,
-    index: max,
-  });
+    index: max
+  })
 
-  return isXtoY ? ticksData : ticksData.reverse();
-};
+  return isXtoY ? ticksData : ticksData.reverse()
+}
 
-let isCoinGeckoQueryRunning = false;
+let isCoinGeckoQueryRunning = false
 
-export const getCoinGeckoTokenPrice = async (
-  id: string
-): Promise<number | undefined> => {
+export const getCoinGeckoTokenPrice = async (id: string): Promise<number | undefined> => {
   while (isCoinGeckoQueryRunning) {
-    await sleep(100);
+    await sleep(100)
   }
-  isCoinGeckoQueryRunning = true;
+  isCoinGeckoQueryRunning = true
 
-  const cachedLastQueryTimestamp = localStorage.getItem(
-    "COINGECKO_LAST_QUERY_TIMESTAMP"
-  );
-  let lastQueryTimestamp = 0;
+  const cachedLastQueryTimestamp = localStorage.getItem('COINGECKO_LAST_QUERY_TIMESTAMP')
+  let lastQueryTimestamp = 0
   if (cachedLastQueryTimestamp) {
-    lastQueryTimestamp = Number(cachedLastQueryTimestamp);
+    lastQueryTimestamp = Number(cachedLastQueryTimestamp)
   }
 
-  const cachedPriceData = localStorage.getItem("COINGECKO_PRICE_DATA");
-  let priceData: CoinGeckoAPIData = [];
-  if (
-    cachedPriceData &&
-    Number(lastQueryTimestamp) + COINGECKO_QUERY_COOLDOWN > Date.now()
-  ) {
-    priceData = JSON.parse(cachedPriceData);
+  const cachedPriceData = localStorage.getItem('COINGECKO_PRICE_DATA')
+  let priceData: CoinGeckoAPIData = []
+  if (cachedPriceData && Number(lastQueryTimestamp) + COINGECKO_QUERY_COOLDOWN > Date.now()) {
+    priceData = JSON.parse(cachedPriceData)
   } else {
     try {
       const { data } = await axios.get<CoinGeckoAPIData>(
         `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${DEFAULT_TOKENS}`
-      );
-      priceData = data;
-      localStorage.setItem("COINGECKO_PRICE_DATA", JSON.stringify(priceData));
-      localStorage.setItem(
-        "COINGECKO_LAST_QUERY_TIMESTAMP",
-        String(Date.now())
-      );
+      )
+      priceData = data
+      localStorage.setItem('COINGECKO_PRICE_DATA', JSON.stringify(priceData))
+      localStorage.setItem('COINGECKO_LAST_QUERY_TIMESTAMP', String(Date.now()))
     } catch (e) {
-      localStorage.removeItem("COINGECKO_LAST_QUERY_TIMESTAMP");
-      localStorage.removeItem("COINGECKO_PRICE_DATA");
-      console.log(e);
+      localStorage.removeItem('COINGECKO_LAST_QUERY_TIMESTAMP')
+      localStorage.removeItem('COINGECKO_PRICE_DATA')
+      console.log(e)
     }
   }
 
-  isCoinGeckoQueryRunning = false;
-  return priceData.find((entry) => entry.id === id)?.current_price;
-};
+  isCoinGeckoQueryRunning = false
+  return priceData.find(entry => entry.id === id)?.current_price
+}
 
-export const getMockedTokenPrice = (
-  symbol: string,
-  network: Network
-): TokenPriceData => {
-  const sufix = network === Network.Testnet ? "_TEST" : "_DEV";
-  const prices = tokensPrices[network];
+export const getMockedTokenPrice = (symbol: string, network: Network): TokenPriceData => {
+  const sufix = network === Network.Testnet ? '_TEST' : '_DEV'
+  const prices = tokensPrices[network]
   switch (symbol) {
-    case "BTC":
-      return prices[symbol + sufix];
-    case "ETH":
-      return prices["W" + symbol + sufix];
-    case "USDC":
-      return prices[symbol + sufix];
+    case 'BTC':
+      return prices[symbol + sufix]
+    case 'ETH':
+      return prices['W' + symbol + sufix]
+    case 'USDC':
+      return prices[symbol + sufix]
     default:
-      return { price: 0 };
+      return { price: 0 }
   }
-};
+}
 
 export const printBigint = (amount: bigint, decimals: bigint): string => {
-  const parsedDecimals = Number(decimals);
-  const amountString = amount.toString();
-  const isNegative = amountString.length > 0 && amountString[0] === "-";
+  const parsedDecimals = Number(decimals)
+  const amountString = amount.toString()
+  const isNegative = amountString.length > 0 && amountString[0] === '-'
 
-  const balanceString = isNegative ? amountString.slice(1) : amountString;
+  const balanceString = isNegative ? amountString.slice(1) : amountString
 
   if (balanceString.length <= parsedDecimals) {
     return (
-      (isNegative ? "-" : "") +
-      "0." +
-      "0".repeat(parsedDecimals - balanceString.length) +
+      (isNegative ? '-' : '') +
+      '0.' +
+      '0'.repeat(parsedDecimals - balanceString.length) +
       balanceString
-    );
+    )
   } else {
     return (
-      (isNegative ? "-" : "") +
+      (isNegative ? '-' : '') +
       trimZeros(
         balanceString.substring(0, balanceString.length - parsedDecimals) +
-          "." +
+          '.' +
           balanceString.substring(balanceString.length - parsedDecimals)
       )
-    );
+    )
   }
-};
+}
 
 export const newPrintBigInt = (amount: bigint, decimals: bigint): string => {
-  const parsedDecimals = Number(decimals);
-  const amountString = amount.toString();
-  const isNegative = amountString.length > 0 && amountString[0] === "-";
+  const parsedDecimals = Number(decimals)
+  const amountString = amount.toString()
+  const isNegative = amountString.length > 0 && amountString[0] === '-'
 
-  const balanceString = isNegative ? amountString.slice(1) : amountString;
+  const balanceString = isNegative ? amountString.slice(1) : amountString
 
   if (balanceString.length <= parsedDecimals) {
-    const diff = parsedDecimals - balanceString.length;
+    const diff = parsedDecimals - balanceString.length
 
     return (
-      (isNegative ? "-" : "") +
-      trimZeros(
-        "0." +
-          (diff > 3 ? "0" + printSubNumber(diff) : "0".repeat(diff)) +
-          balanceString
-      )
-    );
+      (isNegative ? '-' : '') +
+      trimZeros('0.' + (diff > 3 ? '0' + printSubNumber(diff) : '0'.repeat(diff)) + balanceString)
+    )
   } else {
     return (
-      (isNegative ? "-" : "") +
+      (isNegative ? '-' : '') +
       trimZeros(
         balanceString.substring(0, balanceString.length - parsedDecimals) +
-          "." +
+          '.' +
           balanceString.substring(balanceString.length - parsedDecimals)
       )
-    );
+    )
   }
-};
+}
 
 export const printSubNumber = (amount: number): string => {
   return Array.from(String(amount))
-    .map((char) => subNumbers[+char])
-    .join("");
-};
+    .map(char => subNumbers[+char])
+    .join('')
+}
 
 export const parseFeeToPathFee = (fee: bigint): string => {
-  const parsedFee = (fee / BigInt(Math.pow(10, 8))).toString().padStart(3, "0");
-  return (
-    parsedFee.slice(0, parsedFee.length - 2) +
-    "_" +
-    parsedFee.slice(parsedFee.length - 2)
-  );
-};
+  const parsedFee = (fee / BigInt(Math.pow(10, 8))).toString().padStart(3, '0')
+  return parsedFee.slice(0, parsedFee.length - 2) + '_' + parsedFee.slice(parsedFee.length - 2)
+}
 
 export const getTokenMetadata = async (
   tokens: string[],
   fungibleToken: FungibleToken
 ): Promise<Record<string, Token>> => {
-  const promises = tokens.flatMap((token) => {
+  const promises = tokens.flatMap(token => {
     return [
       fungibleToken.getTokenSymbol(token),
       fungibleToken.getTokenName(token),
-      fungibleToken.getTokenDecimals(token),
-    ];
-  });
-  const results = await Promise.all(promises);
+      fungibleToken.getTokenDecimals(token)
+    ]
+  })
+  const results = await Promise.all(promises)
 
-  const newTokens: Record<string, Token> = {};
+  const newTokens: Record<string, Token> = {}
   tokens.forEach((token, index) => {
-    const baseIndex = index * 3;
+    const baseIndex = index * 3
     newTokens[token] = {
-      symbol: results[baseIndex] ? (results[baseIndex] as string) : "UNKNOWN",
+      symbol: results[baseIndex] ? (results[baseIndex] as string) : 'UNKNOWN',
       address: token,
-      name: results[baseIndex + 1] ? (results[baseIndex + 1] as string) : "",
+      name: results[baseIndex + 1] ? (results[baseIndex + 1] as string) : '',
       decimals: results[baseIndex + 2] as bigint,
       balance: 0n,
       logoURI: icons.unknownToken,
-      isUnknown: true,
-    };
-  });
-  return newTokens;
-};
+      isUnknown: true
+    }
+  })
+  return newTokens
+}
 
 export const getTokenDataByAddresses = async (
   tokens: string[],
   fungibleToken: FungibleToken,
   address: string
 ): Promise<Record<string, Token>> => {
-  const promises = tokens.flatMap((token) => {
+  const promises = tokens.flatMap(token => {
     return [
       fungibleToken.getTokenSymbol(token),
       fungibleToken.getTokenName(token),
       fungibleToken.getTokenDecimals(token),
-      fungibleToken.getBalanceOf(address, token),
-    ];
-  });
-  const results = await Promise.all(promises);
+      fungibleToken.getBalanceOf(address, token)
+    ]
+  })
+  const results = await Promise.all(promises)
 
-  const newTokens: Record<string, Token> = {};
+  const newTokens: Record<string, Token> = {}
   tokens.forEach((token, index) => {
-    const baseIndex = index * 4;
+    const baseIndex = index * 4
     newTokens[token] = {
-      symbol: results[baseIndex] ? (results[baseIndex] as string) : "UNKNOWN",
+      symbol: results[baseIndex] ? (results[baseIndex] as string) : 'UNKNOWN',
       address: token,
-      name: results[baseIndex + 1] ? (results[baseIndex + 1] as string) : "",
+      name: results[baseIndex + 1] ? (results[baseIndex + 1] as string) : '',
       decimals: results[baseIndex + 2] as bigint,
       balance: results[baseIndex + 3] as bigint,
       logoURI: icons.unknownToken,
-      isUnknown: true,
-    };
-  });
-  return newTokens;
-};
+      isUnknown: true
+    }
+  })
+  return newTokens
+}
 
 export const getTokenBalances = async (
   tokens: string[],
   fungibleToken: FungibleToken,
   address: string
 ): Promise<[string, bigint][]> => {
-  const promises: Promise<bigint>[] = [];
-  tokens.map((token) => {
-    promises.push(fungibleToken.getBalanceOf(address, token));
-  });
-  const results = await Promise.all(promises);
+  const promises: Promise<bigint>[] = []
+  tokens.map(token => {
+    promises.push(fungibleToken.getBalanceOf(address, token))
+  })
+  const results = await Promise.all(promises)
 
-  const tokenBalances: [string, bigint][] = [];
+  const tokenBalances: [string, bigint][] = []
   tokens.map((token, index) => {
-    tokenBalances.push([token, results[index]]);
-  });
-  return tokenBalances;
-};
+    tokenBalances.push([token, results[index]])
+  })
+  return tokenBalances
+}
 
 export const getPoolsByPoolKeys = async (
   invariant: Invariant,
   poolKeys: PoolKey[]
 ): Promise<PoolWithPoolKey[]> => {
-  const promises = poolKeys.map((poolKey) => invariant.getPool(poolKey));
-  const pools = await Promise.all(promises);
+  const promises = poolKeys.map(poolKey => invariant.getPool(poolKey))
+  const pools = await Promise.all(promises)
 
   return pools.map((pool, index) => ({
     ...pool,
-    poolKey: poolKeys[index],
-  }));
-};
+    poolKey: poolKeys[index]
+  }))
+}
 
 export const poolKeyToString = (poolKey: PoolKey): string => {
   return (
     poolKey.tokenX +
-    "-" +
+    '-' +
     poolKey.tokenY +
-    "-" +
+    '-' +
     poolKey.feeTier.fee +
-    "-" +
+    '-' +
     poolKey.feeTier.tickSpacing
-  );
-};
+  )
+}
 
-export const getNetworkTokensList = (
-  networkType: Network
-): Record<string, Token> => {
+export const getNetworkTokensList = (networkType: Network): Record<string, Token> => {
   switch (networkType) {
     case Network.Mainnet: {
       return {
         [MAINNET_USDC.address.toString()]: MAINNET_USDC,
         [MAINNET_BTC.address.toString()]: MAINNET_BTC,
-        [MAINNET_ETH.address.toString()]: MAINNET_ETH,
-      };
+        [MAINNET_ETH.address.toString()]: MAINNET_ETH
+      }
     }
     case Network.Testnet:
       return {
         [TESTNET_USDC.address.toString()]: TESTNET_USDC,
         [TESTNET_BTC.address.toString()]: TESTNET_BTC,
-        [TESTNET_ETH.address.toString()]: TESTNET_ETH,
-      };
+        [TESTNET_ETH.address.toString()]: TESTNET_ETH
+      }
     default:
-      return {};
+      return {}
   }
-};
+}
 
 export const getPrimaryUnitsPrice = (
   price: number,
@@ -528,74 +484,58 @@ export const getPrimaryUnitsPrice = (
   xDecimal: number,
   yDecimal: number
 ) => {
-  const xToYPrice = isXtoY ? price : 1 / price;
+  const xToYPrice = isXtoY ? price : 1 / price
 
-  return xToYPrice * 10 ** (yDecimal - xDecimal);
-};
+  return xToYPrice * 10 ** (yDecimal - xDecimal)
+}
 
-export const logBase = (x: number, b: number): number =>
-  Math.log(x) / Math.log(b);
+export const logBase = (x: number, b: number): number => Math.log(x) / Math.log(b)
 
-export const adjustToSpacing = (
-  baseTick: number,
-  spacing: number,
-  isGreater: boolean
-): number => {
-  const remainder = baseTick % spacing;
+export const adjustToSpacing = (baseTick: number, spacing: number, isGreater: boolean): number => {
+  const remainder = baseTick % spacing
 
   if (Math.abs(remainder) === 0) {
-    return baseTick;
+    return baseTick
   }
 
-  let adjustment: number;
+  let adjustment: number
   if (isGreater) {
     if (baseTick >= 0) {
-      adjustment = spacing - remainder;
+      adjustment = spacing - remainder
     } else {
-      adjustment = Math.abs(remainder);
+      adjustment = Math.abs(remainder)
     }
   } else {
     if (baseTick >= 0) {
-      adjustment = -remainder;
+      adjustment = -remainder
     } else {
-      adjustment = -(spacing - Math.abs(remainder));
+      adjustment = -(spacing - Math.abs(remainder))
     }
   }
 
-  return baseTick + adjustment;
-};
+  return baseTick + adjustment
+}
 
-export const spacingMultiplicityLte = (
-  arg: number,
-  spacing: number
-): number => {
-  return adjustToSpacing(arg, spacing, false);
-};
+export const spacingMultiplicityLte = (arg: number, spacing: number): number => {
+  return adjustToSpacing(arg, spacing, false)
+}
 
-export const spacingMultiplicityGte = (
-  arg: number,
-  spacing: number
-): number => {
-  return adjustToSpacing(arg, spacing, true);
-};
+export const spacingMultiplicityGte = (arg: number, spacing: number): number => {
+  return adjustToSpacing(arg, spacing, true)
+}
 
-export const nearestSpacingMultiplicity = (
-  centerTick: number,
-  spacing: number
-) => {
-  const greaterTick = spacingMultiplicityGte(centerTick, spacing);
-  const lowerTick = spacingMultiplicityLte(centerTick, spacing);
+export const nearestSpacingMultiplicity = (centerTick: number, spacing: number) => {
+  const greaterTick = spacingMultiplicityGte(centerTick, spacing)
+  const lowerTick = spacingMultiplicityLte(centerTick, spacing)
 
   const nearestTick =
-    Math.abs(greaterTick - centerTick) < Math.abs(lowerTick - centerTick)
-      ? greaterTick
-      : lowerTick;
+    Math.abs(greaterTick - centerTick) < Math.abs(lowerTick - centerTick) ? greaterTick : lowerTick
 
   return Math.max(
     Math.min(nearestTick, Number(getMaxTick(BigInt(spacing)))),
     Number(getMinTick(BigInt(spacing)))
-  );
-};
+  )
+}
 
 export const calculateSqrtPriceFromBalance = (
   price: number,
@@ -604,61 +544,44 @@ export const calculateSqrtPriceFromBalance = (
   xDecimal: bigint,
   yDecimal: bigint
 ) => {
-  const minTick = getMinTick(spacing);
-  const maxTick = getMaxTick(spacing);
+  const minTick = getMinTick(spacing)
+  const maxTick = getMaxTick(spacing)
 
   const basePrice = Math.min(
     Math.max(
       price,
-      Number(
-        calcPriceByTickIndex(
-          isXtoY ? minTick : maxTick,
-          isXtoY,
-          xDecimal,
-          yDecimal
-        )
-      )
+      Number(calcPriceByTickIndex(isXtoY ? minTick : maxTick, isXtoY, xDecimal, yDecimal))
     ),
-    Number(
-      calcPriceByTickIndex(
-        isXtoY ? maxTick : minTick,
-        isXtoY,
-        xDecimal,
-        yDecimal
-      )
-    )
-  );
+    Number(calcPriceByTickIndex(isXtoY ? maxTick : minTick, isXtoY, xDecimal, yDecimal))
+  )
 
   const primaryUnitsPrice = getPrimaryUnitsPrice(
     basePrice,
     isXtoY,
     Number(xDecimal),
     Number(yDecimal)
-  );
+  )
 
   const parsedPrimaryUnits =
     primaryUnitsPrice > 1 && Number.isInteger(primaryUnitsPrice)
       ? primaryUnitsPrice.toString()
-      : primaryUnitsPrice.toFixed(24);
+      : primaryUnitsPrice.toFixed(24)
 
-  const bigintPrice = convertBalanceToBigint(
-    parsedPrimaryUnits,
-    SQRT_PRICE_SCALE
-  );
-  const sqrtPrice = priceToSqrtPrice(bigintPrice as Price);
+  const bigintPrice = convertBalanceToBigint(parsedPrimaryUnits, SQRT_PRICE_SCALE)
+  const sqrtPrice = priceToSqrtPrice(bigintPrice as Price)
 
-  const minSqrtPrice = calculateSqrtPrice(minTick);
-  const maxSqrtPrice = calculateSqrtPrice(maxTick);
+  const minSqrtPrice = calculateSqrtPrice(minTick)
+  const maxSqrtPrice = calculateSqrtPrice(maxTick)
 
-  let validatedSqrtPrice = sqrtPrice;
+  let validatedSqrtPrice = sqrtPrice
   if (sqrtPrice < minSqrtPrice) {
-    validatedSqrtPrice = minSqrtPrice;
+    validatedSqrtPrice = minSqrtPrice
   } else if (sqrtPrice > maxSqrtPrice) {
-    validatedSqrtPrice = maxSqrtPrice;
+    validatedSqrtPrice = maxSqrtPrice
   }
 
-  return validatedSqrtPrice;
-};
+  return validatedSqrtPrice
+}
 
 export const calculateTickFromBalance = (
   price: number,
@@ -667,33 +590,26 @@ export const calculateTickFromBalance = (
   xDecimal: bigint,
   yDecimal: bigint
 ) => {
-  const minTick = getMinTick(spacing);
-  const maxTick = getMaxTick(spacing);
+  const minTick = getMinTick(spacing)
+  const maxTick = getMaxTick(spacing)
 
   const basePrice = Math.max(
     price,
-    Number(
-      calcPriceByTickIndex(
-        isXtoY ? minTick : maxTick,
-        isXtoY,
-        xDecimal,
-        yDecimal
-      )
-    )
-  );
+    Number(calcPriceByTickIndex(isXtoY ? minTick : maxTick, isXtoY, xDecimal, yDecimal))
+  )
   const primaryUnitsPrice = getPrimaryUnitsPrice(
     basePrice,
     isXtoY,
     Number(xDecimal),
     Number(yDecimal)
-  );
-  const tick = Math.round(logBase(primaryUnitsPrice, 1.0001));
+  )
+  const tick = Math.round(logBase(primaryUnitsPrice, 1.0001))
 
   return Math.max(
     Math.min(tick, Number(getMaxTick(BigInt(spacing)))),
     Number(getMinTick(BigInt(spacing)))
-  );
-};
+  )
+}
 
 export const nearestTickIndex = (
   price: number,
@@ -702,55 +618,44 @@ export const nearestTickIndex = (
   xDecimal: bigint,
   yDecimal: bigint
 ) => {
-  const tick = calculateTickFromBalance(
-    price,
-    spacing,
-    isXtoY,
-    xDecimal,
-    yDecimal
-  );
+  const tick = calculateTickFromBalance(price, spacing, isXtoY, xDecimal, yDecimal)
 
-  return BigInt(nearestSpacingMultiplicity(tick, Number(spacing)));
-};
+  return BigInt(nearestSpacingMultiplicity(tick, Number(spacing)))
+}
 
 function safeConvertToBigInt(value: string): bigint {
-  if (value.toLowerCase().includes("e")) {
-    const [baseStr, exponentStr] = value.toLowerCase().split("e");
+  if (value.toLowerCase().includes('e')) {
+    const [baseStr, exponentStr] = value.toLowerCase().split('e')
 
-    const baseBigInt = BigInt(baseStr.replace(".", ""));
-    const exponent = parseInt(exponentStr);
+    const baseBigInt = BigInt(baseStr.replace('.', ''))
+    const exponent = parseInt(exponentStr)
     if (Math.abs(exponent) > 10000) {
-      return 0n;
+      return 0n
     }
 
-    const decimalPlaces = (baseStr.split(".")[1] || "").length;
+    const decimalPlaces = (baseStr.split('.')[1] || '').length
 
-    const adjustedExponent = exponent - decimalPlaces;
+    const adjustedExponent = exponent - decimalPlaces
 
-    return baseBigInt * 10n ** BigInt(adjustedExponent);
+    return baseBigInt * 10n ** BigInt(adjustedExponent)
   } else {
-    return BigInt(value);
+    return BigInt(value)
   }
 }
 
-export const convertBalanceToBigint = (
-  amount: string,
-  decimals: bigint | number
-): bigint => {
-  const balanceString = amount.split(".");
+export const convertBalanceToBigint = (amount: string, decimals: bigint | number): bigint => {
+  const balanceString = amount.split('.')
   if (balanceString.length !== 2) {
-    return BigInt(balanceString[0] + "0".repeat(Number(decimals)));
+    return BigInt(balanceString[0] + '0'.repeat(Number(decimals)))
   }
 
   if (balanceString[1].length <= decimals) {
     return safeConvertToBigInt(
-      balanceString[0] +
-        balanceString[1] +
-        "0".repeat(Number(decimals) - balanceString[1].length)
-    );
+      balanceString[0] + balanceString[1] + '0'.repeat(Number(decimals) - balanceString[1].length)
+    )
   }
-  return 0n;
-};
+  return 0n
+}
 
 export const determinePositionTokenBlock = (
   currentSqrtPrice: bigint,
@@ -758,57 +663,49 @@ export const determinePositionTokenBlock = (
   upperTick: bigint,
   isXtoY: boolean
 ) => {
-  const lowerPrice = calculateSqrtPrice(lowerTick);
-  const upperPrice = calculateSqrtPrice(upperTick);
+  const lowerPrice = calculateSqrtPrice(lowerTick)
+  const upperPrice = calculateSqrtPrice(upperTick)
 
-  const isBelowLowerPrice = lowerPrice >= currentSqrtPrice;
-  const isAboveUpperPrice = upperPrice <= currentSqrtPrice;
+  const isBelowLowerPrice = lowerPrice >= currentSqrtPrice
+  const isAboveUpperPrice = upperPrice <= currentSqrtPrice
 
   if (isBelowLowerPrice) {
-    return isXtoY ? PositionTokenBlock.B : PositionTokenBlock.A;
+    return isXtoY ? PositionTokenBlock.B : PositionTokenBlock.A
   }
   if (isAboveUpperPrice) {
-    return isXtoY ? PositionTokenBlock.A : PositionTokenBlock.B;
+    return isXtoY ? PositionTokenBlock.A : PositionTokenBlock.B
   }
 
-  return PositionTokenBlock.None;
-};
+  return PositionTokenBlock.None
+}
 
-export const findPairs = (
-  tokenFrom: string,
-  tokenTo: string,
-  pairs: PoolWithPoolKey[]
-) => {
+export const findPairs = (tokenFrom: string, tokenTo: string, pairs: PoolWithPoolKey[]) => {
   return pairs.filter(
-    (pool) =>
+    pool =>
       (tokenFrom === pool.poolKey.tokenX && tokenTo === pool.poolKey.tokenY) ||
       (tokenFrom === pool.poolKey.tokenY && tokenTo === pool.poolKey.tokenX)
-  );
-};
+  )
+}
 
-export const findPairsByPoolKeys = (
-  tokenFrom: string,
-  tokenTo: string,
-  poolKeys: PoolKey[]
-) => {
+export const findPairsByPoolKeys = (tokenFrom: string, tokenTo: string, poolKeys: PoolKey[]) => {
   return poolKeys.filter(
-    (poolKey) =>
+    poolKey =>
       (tokenFrom === poolKey.tokenX && tokenTo === poolKey.tokenY) ||
       (tokenFrom === poolKey.tokenY && tokenTo === poolKey.tokenX)
-  );
-};
+  )
+}
 
 export const getPools = async (
   invariant: Invariant,
   poolKeys: PoolKey[]
 ): Promise<PoolWithPoolKey[]> => {
-  const promises = poolKeys.map((poolKey) => invariant.getPool(poolKey));
+  const promises = poolKeys.map(poolKey => invariant.getPool(poolKey))
 
-  const pools = await Promise.all(promises);
+  const pools = await Promise.all(promises)
   return pools.map((pool, index) => {
-    return { ...pool, poolKey: poolKeys[index] };
-  });
-};
+    return { ...pool, poolKey: poolKeys[index] }
+  })
+}
 
 export const calculateConcentrationRange = (
   tickSpacing: bigint,
@@ -817,23 +714,17 @@ export const calculateConcentrationRange = (
   currentTick: bigint,
   isXToY: boolean
 ) => {
-  const parsedTickSpacing = Number(tickSpacing);
-  const parsedCurrentTick = Number(currentTick);
-  const tickDelta = calculateTickDelta(
-    tickSpacing,
-    minimumRange,
-    concentration
-  );
-  const lowerTick =
-    parsedCurrentTick - (minimumRange / 2 + tickDelta) * parsedTickSpacing;
-  const upperTick =
-    parsedCurrentTick + (minimumRange / 2 + tickDelta) * parsedTickSpacing;
+  const parsedTickSpacing = Number(tickSpacing)
+  const parsedCurrentTick = Number(currentTick)
+  const tickDelta = calculateTickDelta(tickSpacing, minimumRange, concentration)
+  const lowerTick = parsedCurrentTick - (minimumRange / 2 + tickDelta) * parsedTickSpacing
+  const upperTick = parsedCurrentTick + (minimumRange / 2 + tickDelta) * parsedTickSpacing
 
   return {
     leftRange: BigInt(isXToY ? lowerTick : upperTick),
-    rightRange: BigInt(isXToY ? upperTick : lowerTick),
-  };
-};
+    rightRange: BigInt(isXToY ? upperTick : lowerTick)
+  }
+}
 
 export const calcTicksAmountInRange = (
   min: number,
@@ -843,58 +734,53 @@ export const calcTicksAmountInRange = (
   xDecimal: number,
   yDecimal: number
 ): number => {
-  const primaryUnitsMin = getPrimaryUnitsPrice(min, isXtoY, xDecimal, yDecimal);
-  const primaryUnitsMax = getPrimaryUnitsPrice(max, isXtoY, xDecimal, yDecimal);
-  const minIndex = logBase(primaryUnitsMin, 1.0001);
-  const maxIndex = logBase(primaryUnitsMax, 1.0001);
+  const primaryUnitsMin = getPrimaryUnitsPrice(min, isXtoY, xDecimal, yDecimal)
+  const primaryUnitsMax = getPrimaryUnitsPrice(max, isXtoY, xDecimal, yDecimal)
+  const minIndex = logBase(primaryUnitsMin, 1.0001)
+  const maxIndex = logBase(primaryUnitsMax, 1.0001)
 
-  return Math.ceil(Math.abs(maxIndex - minIndex) / tickSpacing);
-};
+  return Math.ceil(Math.abs(maxIndex - minIndex) / tickSpacing)
+}
 
 export const getAllTicks = (
   invariant: Invariant,
   poolKey: PoolKey,
   ticks: bigint[]
 ): Promise<Tick[]> => {
-  const promises: Promise<Tick>[] = [];
+  const promises: Promise<Tick>[] = []
 
   for (const tick of ticks) {
-    promises.push(invariant.getTick(poolKey, tick));
+    promises.push(invariant.getTick(poolKey, tick))
   }
 
-  return Promise.all(promises);
-};
+  return Promise.all(promises)
+}
 
-export const tickmapToArray = (
-  tickmap: Tickmap,
-  tickSpacing: bigint
-): bigint[] => {
-  const ticks = [];
+export const tickmapToArray = (tickmap: Tickmap, tickSpacing: bigint): bigint[] => {
+  const ticks = []
 
   for (const [chunkIndex, chunk] of tickmap.entries()) {
     for (let bit = 0n; bit < CHUNK_SIZE; bit++) {
-      const checkedBit = chunk & (1n << bit);
+      const checkedBit = chunk & (1n << bit)
       if (checkedBit) {
-        ticks.push(bitPositionToTick(chunkIndex, bit, tickSpacing));
+        ticks.push(bitPositionToTick(chunkIndex, bit, tickSpacing))
       }
     }
   }
 
-  return ticks;
-};
+  return ticks
+}
 
 export const deserializeTickmap = (serializedTickmap: string): Tickmap => {
-  const deserializedMap: Map<string, string> = new Map(
-    JSON.parse(serializedTickmap)
-  );
+  const deserializedMap: Map<string, string> = new Map(JSON.parse(serializedTickmap))
 
-  const parsedMap = new Map();
+  const parsedMap = new Map()
   for (const [key, value] of deserializedMap) {
-    parsedMap.set(BigInt(key), BigInt(value));
+    parsedMap.set(BigInt(key), BigInt(value))
   }
 
-  return parsedMap;
-};
+  return parsedMap
+}
 
 export const calculateAmountInWithSlippage = (
   amountOut: bigint,
@@ -902,24 +788,20 @@ export const calculateAmountInWithSlippage = (
   xToY: boolean,
   fee: bigint
 ): bigint => {
-  const price = +printBigint(
-    sqrtPriceToPrice(sqrtPriceLimit as SqrtPrice),
-    PRICE_SCALE
-  );
+  const price = +printBigint(sqrtPriceToPrice(sqrtPriceLimit as SqrtPrice), PRICE_SCALE)
   const amountIn = xToY
     ? Math.ceil(Number(amountOut + 1n) / price)
-    : Math.ceil(Number(amountOut + 1n) * price);
+    : Math.ceil(Number(amountOut + 1n) * price)
 
   const amountInWithFee = BigInt(
     Math.ceil(
       Number(amountIn) *
-        (Number(PERCENTAGE_DENOMINATOR) /
-          (Number(PERCENTAGE_DENOMINATOR) - Number(fee)))
+        (Number(PERCENTAGE_DENOMINATOR) / (Number(PERCENTAGE_DENOMINATOR) - Number(fee)))
     )
-  );
+  )
 
-  return amountInWithFee;
-};
+  return amountInWithFee
+}
 
 export const createLiquidityPlot = (
   rawTicks: LiquidityTick[],
@@ -928,34 +810,27 @@ export const createLiquidityPlot = (
   tokenXDecimal: bigint,
   tokenYDecimal: bigint
 ): PlotTickData[] => {
-  const sortedTicks = rawTicks.sort((a, b) => Number(a.index - b.index));
-  const parsedTicks = rawTicks.length
-    ? calculateLiquidityBreakpoints(sortedTicks)
-    : [];
+  const sortedTicks = rawTicks.sort((a, b) => Number(a.index - b.index))
+  const parsedTicks = rawTicks.length ? calculateLiquidityBreakpoints(sortedTicks) : []
 
   const ticks = rawTicks.map((raw, index) => ({
     ...raw,
-    liqudity: parsedTicks[index].liquidity,
-  }));
+    liqudity: parsedTicks[index].liquidity
+  }))
 
-  const ticksData: PlotTickData[] = [];
+  const ticksData: PlotTickData[] = []
 
-  const min = getMinTick(tickSpacing);
-  const max = getMaxTick(tickSpacing);
+  const min = getMinTick(tickSpacing)
+  const max = getMaxTick(tickSpacing)
 
   if (!ticks.length || ticks[0].index > min) {
-    const minPrice = calcPriceByTickIndex(
-      min,
-      isXtoY,
-      tokenXDecimal,
-      tokenYDecimal
-    );
+    const minPrice = calcPriceByTickIndex(min, isXtoY, tokenXDecimal, tokenYDecimal)
 
     ticksData.push({
       x: minPrice,
       y: 0,
-      index: min,
-    });
+      index: min
+    })
   }
 
   ticks.forEach((tick, i) => {
@@ -965,52 +840,42 @@ export const createLiquidityPlot = (
         isXtoY,
         tokenXDecimal,
         tokenYDecimal
-      );
+      )
       ticksData.push({
         x: price,
         y: 0,
-        index: tick.index - tickSpacing,
-      });
+        index: tick.index - tickSpacing
+      })
     } else if (i > 0 && tick.index - tickSpacing > ticks[i - 1].index) {
       const price = calcPriceByTickIndex(
         tick.index - tickSpacing,
         isXtoY,
         tokenXDecimal,
         tokenYDecimal
-      );
+      )
       ticksData.push({
         x: price,
         y: +printBigint(ticks[i - 1].liqudity, LIQUIDITY_PLOT_DECIMAL),
-        index: tick.index - tickSpacing,
-      });
+        index: tick.index - tickSpacing
+      })
     }
 
-    const price = calcPriceByTickIndex(
-      tick.index,
-      isXtoY,
-      tokenXDecimal,
-      tokenYDecimal
-    );
+    const price = calcPriceByTickIndex(tick.index, isXtoY, tokenXDecimal, tokenYDecimal)
     ticksData.push({
       x: price,
       y: +printBigint(ticks[i].liqudity, LIQUIDITY_PLOT_DECIMAL),
-      index: tick.index,
-    });
-  });
-  const lastTick = ticks[ticks.length - 1].index;
+      index: tick.index
+    })
+  })
+  const lastTick = ticks[ticks.length - 1].index
   if (!ticks.length) {
-    const maxPrice = calcPriceByTickIndex(
-      max,
-      isXtoY,
-      tokenXDecimal,
-      tokenYDecimal
-    );
+    const maxPrice = calcPriceByTickIndex(max, isXtoY, tokenXDecimal, tokenYDecimal)
 
     ticksData.push({
       x: maxPrice,
       y: 0,
-      index: max,
-    });
+      index: max
+    })
   } else if (lastTick < max) {
     if (max - lastTick > tickSpacing) {
       const price = calcPriceByTickIndex(
@@ -1018,443 +883,390 @@ export const createLiquidityPlot = (
         isXtoY,
         tokenXDecimal,
         tokenYDecimal
-      );
+      )
       ticksData.push({
         x: price,
         y: 0,
-        index: lastTick + tickSpacing,
-      });
+        index: lastTick + tickSpacing
+      })
     }
 
-    const maxPrice = calcPriceByTickIndex(
-      max,
-      isXtoY,
-      tokenXDecimal,
-      tokenYDecimal
-    );
+    const maxPrice = calcPriceByTickIndex(max, isXtoY, tokenXDecimal, tokenYDecimal)
 
     ticksData.push({
       x: maxPrice,
       y: 0,
-      index: max,
-    });
+      index: max
+    })
   }
 
-  return isXtoY ? ticksData : ticksData.reverse();
-};
+  return isXtoY ? ticksData : ticksData.reverse()
+}
 export const formatNumber = (
   number: number | bigint | string,
   noDecimals?: boolean,
   decimalsAfterDot: number = 3
 ): string => {
-  const numberAsNumber = Number(number);
-  const isNegative = numberAsNumber < 0;
-  const absNumberAsNumber = Math.abs(numberAsNumber);
+  const numberAsNumber = Number(number)
+  const isNegative = numberAsNumber < 0
+  const absNumberAsNumber = Math.abs(numberAsNumber)
 
-  if (absNumberAsNumber.toString().includes("e")) {
-    const exponential = absNumberAsNumber.toExponential(decimalsAfterDot);
-    return isNegative ? `-${exponential}` : exponential;
+  if (absNumberAsNumber.toString().includes('e')) {
+    const exponential = absNumberAsNumber.toExponential(decimalsAfterDot)
+    return isNegative ? `-${exponential}` : exponential
   }
 
-  const absNumberAsString = numberToString(absNumberAsNumber);
+  const absNumberAsString = numberToString(absNumberAsNumber)
 
   if (containsOnlyZeroes(absNumberAsString)) {
-    return "0";
+    return '0'
   }
 
-  const [beforeDot, afterDot] = absNumberAsString.split(".");
+  const [beforeDot, afterDot] = absNumberAsString.split('.')
 
-  let formattedNumber;
+  let formattedNumber
 
   if (Math.abs(numberAsNumber) >= FormatConfig.B) {
     const formattedDecimals = noDecimals
-      ? ""
-      : (FormatConfig.DecimalsAfterDot ? "." : "") +
-        (
-          beforeDot.slice(-FormatConfig.BDecimals) + (afterDot ? afterDot : "")
-        ).slice(0, FormatConfig.DecimalsAfterDot);
+      ? ''
+      : (FormatConfig.DecimalsAfterDot ? '.' : '') +
+        (beforeDot.slice(-FormatConfig.BDecimals) + (afterDot ? afterDot : '')).slice(
+          0,
+          FormatConfig.DecimalsAfterDot
+        )
 
     formattedNumber =
-      beforeDot.slice(0, -FormatConfig.BDecimals) +
-      (noDecimals ? "" : formattedDecimals) +
-      "B";
+      beforeDot.slice(0, -FormatConfig.BDecimals) + (noDecimals ? '' : formattedDecimals) + 'B'
   } else if (Math.abs(numberAsNumber) >= FormatConfig.M) {
     const formattedDecimals = noDecimals
-      ? ""
-      : (FormatConfig.DecimalsAfterDot ? "." : "") +
-        (
-          beforeDot.slice(-FormatConfig.MDecimals) + (afterDot ? afterDot : "")
-        ).slice(0, FormatConfig.DecimalsAfterDot);
+      ? ''
+      : (FormatConfig.DecimalsAfterDot ? '.' : '') +
+        (beforeDot.slice(-FormatConfig.MDecimals) + (afterDot ? afterDot : '')).slice(
+          0,
+          FormatConfig.DecimalsAfterDot
+        )
     formattedNumber =
-      beforeDot.slice(0, -FormatConfig.MDecimals) +
-      (noDecimals ? "" : formattedDecimals) +
-      "M";
+      beforeDot.slice(0, -FormatConfig.MDecimals) + (noDecimals ? '' : formattedDecimals) + 'M'
   } else if (Math.abs(numberAsNumber) >= FormatConfig.K) {
     const formattedDecimals = noDecimals
-      ? ""
-      : (FormatConfig.DecimalsAfterDot ? "." : "") +
-        (
-          beforeDot.slice(-FormatConfig.KDecimals) + (afterDot ? afterDot : "")
-        ).slice(0, FormatConfig.DecimalsAfterDot);
+      ? ''
+      : (FormatConfig.DecimalsAfterDot ? '.' : '') +
+        (beforeDot.slice(-FormatConfig.KDecimals) + (afterDot ? afterDot : '')).slice(
+          0,
+          FormatConfig.DecimalsAfterDot
+        )
     formattedNumber =
-      beforeDot.slice(0, -FormatConfig.KDecimals) +
-      (noDecimals ? "" : formattedDecimals) +
-      "K";
+      beforeDot.slice(0, -FormatConfig.KDecimals) + (noDecimals ? '' : formattedDecimals) + 'K'
   } else if (afterDot && countLeadingZeros(afterDot) <= decimalsAfterDot) {
     const roundedNumber = numberAsNumber
       .toFixed(countLeadingZeros(afterDot) + decimalsAfterDot + 1)
-      .slice(0, -1);
-    formattedNumber = trimZeros(roundedNumber);
+      .slice(0, -1)
+    formattedNumber = trimZeros(roundedNumber)
   } else {
-    const leadingZeros = afterDot ? countLeadingZeros(afterDot) : 0;
+    const leadingZeros = afterDot ? countLeadingZeros(afterDot) : 0
 
     const parsedAfterDot =
       String(parseInt(afterDot)).length > decimalsAfterDot
         ? String(parseInt(afterDot)).slice(0, decimalsAfterDot)
-        : afterDot;
+        : afterDot
     formattedNumber = trimZeros(
       beforeDot +
-        "." +
+        '.' +
         (parsedAfterDot
           ? leadingZeros > decimalsAfterDot
-            ? "0" + printSubNumber(leadingZeros) + parseInt(parsedAfterDot)
+            ? '0' + printSubNumber(leadingZeros) + parseInt(parsedAfterDot)
             : parsedAfterDot
-          : "")
-    );
+          : '')
+    )
   }
 
-  return isNegative ? "-" + formattedNumber : formattedNumber;
-};
+  return isNegative ? '-' + formattedNumber : formattedNumber
+}
 
 export const formatBalance = (number: number | bigint | string): string => {
-  const numberAsString = numberToString(number);
+  const numberAsString = numberToString(number)
 
-  const [beforeDot, afterDot] = numberAsString.split(".");
+  const [beforeDot, afterDot] = numberAsString.split('.')
 
-  return (
-    beforeDot.replace(/\B(?=(\d{3})+(?!\d))/g, ",") +
-    (afterDot ? "." + afterDot : "")
-  );
-};
+  return beforeDot.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (afterDot ? '.' + afterDot : '')
+}
 
 export const countLeadingZeros = (str: string): number => {
-  return (str.match(/^0+/) || [""])[0].length;
-};
+  return (str.match(/^0+/) || [''])[0].length
+}
 
 export const isErrorMessage = (message: string): boolean => {
   for (const value of Object.values(ErrorMessage)) {
     if (message === value) {
-      return true;
+      return true
     }
   }
-  return false;
-};
+  return false
+}
 
 export const getNewTokenOrThrow = async (
   address: string,
   fungibleToken: FungibleToken,
   walletAddress: string
 ): Promise<Record<string, Token>> => {
-  const tokenData = await getTokenDataByAddresses(
-    [address],
-    fungibleToken,
-    walletAddress
-  );
+  const tokenData = await getTokenDataByAddresses([address], fungibleToken, walletAddress)
 
   if (tokenData) {
-    return tokenData;
+    return tokenData
   } else {
-    throw new Error("Failed to fetch token information");
+    throw new Error('Failed to fetch token information')
   }
-};
+}
 
-export const addNewTokenToLocalStorage = (
-  address: string,
-  network: Network
-) => {
-  const currentListStr = localStorage.getItem(`CUSTOM_TOKENS_${network}`);
+export const addNewTokenToLocalStorage = (address: string, network: Network) => {
+  const currentListStr = localStorage.getItem(`CUSTOM_TOKENS_${network}`)
 
-  const currentList = currentListStr !== null ? JSON.parse(currentListStr) : [];
+  const currentList = currentListStr !== null ? JSON.parse(currentListStr) : []
 
-  currentList.push(address);
+  currentList.push(address)
 
-  localStorage.setItem(
-    `CUSTOM_TOKENS_${network}`,
-    JSON.stringify([...new Set(currentList)])
-  );
-};
+  localStorage.setItem(`CUSTOM_TOKENS_${network}`, JSON.stringify([...new Set(currentList)]))
+}
 
 export const numberToString = (number: number | bigint | string): string => {
-  return String(number).includes("e-")
-    ? Number(number).toFixed(parseInt(String(number).split("e-")[1]))
-    : String(number);
-};
+  return String(number).includes('e-')
+    ? Number(number).toFixed(parseInt(String(number).split('e-')[1]))
+    : String(number)
+}
 
 export const containsOnlyZeroes = (string: string): boolean => {
-  return /^(?!.*[1-9]).*$/.test(string);
-};
+  return /^(?!.*[1-9]).*$/.test(string)
+}
 
-export const stringToFixed = (
-  string: string,
-  numbersAfterDot: number
-): string => {
-  return string.includes(".")
-    ? string.slice(0, string.indexOf(".") + 1 + numbersAfterDot)
-    : string;
-};
+export const stringToFixed = (string: string, numbersAfterDot: number): string => {
+  return string.includes('.') ? string.slice(0, string.indexOf('.') + 1 + numbersAfterDot) : string
+}
 
 export const tickerToAddress = (network: Network, ticker: string): string => {
-  return getAddressTickerMap(network)[ticker] || ticker;
-};
+  return getAddressTickerMap(network)[ticker] || ticker
+}
 
 export const addressToTicker = (network: Network, address: string): string => {
-  return getReversedAddressTickerMap(network)[address] || address;
-};
+  return getReversedAddressTickerMap(network)[address] || address
+}
 
 export const initialXtoY = (tokenXAddress?: string, tokenYAddress?: string) => {
   if (!tokenXAddress || !tokenYAddress) {
-    return true;
+    return true
   }
 
-  const isTokeXStablecoin = STABLECOIN_ADDRESSES.includes(tokenXAddress);
-  const isTokenYStablecoin = STABLECOIN_ADDRESSES.includes(tokenYAddress);
+  const isTokeXStablecoin = STABLECOIN_ADDRESSES.includes(tokenXAddress)
+  const isTokenYStablecoin = STABLECOIN_ADDRESSES.includes(tokenYAddress)
 
-  return (
-    isTokeXStablecoin === isTokenYStablecoin ||
-    (!isTokeXStablecoin && !isTokenYStablecoin)
-  );
-};
+  return isTokeXStablecoin === isTokenYStablecoin || (!isTokeXStablecoin && !isTokenYStablecoin)
+}
 
 export const parsePathFeeToFeeString = (pathFee: string): string => {
-  return (
-    +pathFee.replace("_", "") * Math.pow(10, Number(PERCENTAGE_SCALE) - 4)
-  ).toString();
-};
+  return (+pathFee.replace('_', '') * Math.pow(10, Number(PERCENTAGE_SCALE) - 4)).toString()
+}
 
 export const ensureError = (value: unknown): Error => {
-  if (value instanceof Error) return value;
+  if (value instanceof Error) return value
 
-  let stringified = "[Unable to stringify the thrown value]";
+  let stringified = '[Unable to stringify the thrown value]'
 
-  stringified = JSON.stringify(value);
+  stringified = JSON.stringify(value)
 
-  const error = new Error(stringified);
-  return error;
-};
+  const error = new Error(stringified)
+  return error
+}
 
 export const positionListPageToQueryPage = (page: number): number => {
-  return Math.max(
-    Math.ceil((page * POSITIONS_PER_PAGE) / POSITIONS_PER_QUERY) - 1,
-    0
-  );
-};
+  return Math.max(Math.ceil((page * POSITIONS_PER_PAGE) / POSITIONS_PER_QUERY) - 1, 0)
+}
 
 export const validConcentrationMidPriceTick = (
   midPriceTick: bigint,
   isXtoY: boolean,
   tickSpacing: bigint
 ) => {
-  const minTick = getMinTick(tickSpacing);
-  const maxTick = getMaxTick(tickSpacing);
+  const minTick = getMinTick(tickSpacing)
+  const maxTick = getMaxTick(tickSpacing)
 
-  const tickDelta = BigInt(calculateTickDelta(tickSpacing, 2, 2));
+  const tickDelta = BigInt(calculateTickDelta(tickSpacing, 2, 2))
 
-  const minTickLimit = minTick + (2n + tickDelta) * tickSpacing;
-  const maxTickLimit = maxTick - (2n + tickDelta) * tickSpacing;
+  const minTickLimit = minTick + (2n + tickDelta) * tickSpacing
+  const maxTickLimit = maxTick - (2n + tickDelta) * tickSpacing
 
   if (isXtoY) {
     if (midPriceTick < minTickLimit) {
-      return minTickLimit;
+      return minTickLimit
     } else if (midPriceTick > maxTickLimit) {
-      return maxTickLimit;
+      return maxTickLimit
     }
   } else {
     if (midPriceTick > maxTickLimit) {
-      return maxTickLimit;
+      return maxTickLimit
     } else if (midPriceTick < minTickLimit) {
-      return minTickLimit;
+      return minTickLimit
     }
   }
 
-  return midPriceTick;
-};
+  return midPriceTick
+}
 
 export const getLiquidityTicksByPositionsList = (
   poolKey: PoolKey,
   positions: Position[]
 ): LiquidityTick[] => {
-  const liquidityChanges: Record<number, bigint> = {};
+  const liquidityChanges: Record<number, bigint> = {}
 
-  positions.forEach((position) => {
+  positions.forEach(position => {
     if (poolKeyToString(position.poolKey) === poolKeyToString(poolKey)) {
-      const lowerTickIndex = Number(position.lowerTickIndex);
-      const upperTickIndex = Number(position.upperTickIndex);
+      const lowerTickIndex = Number(position.lowerTickIndex)
+      const upperTickIndex = Number(position.upperTickIndex)
 
       liquidityChanges[lowerTickIndex] =
-        (liquidityChanges[lowerTickIndex] ?? 0n) + position.liquidity;
+        (liquidityChanges[lowerTickIndex] ?? 0n) + position.liquidity
       liquidityChanges[upperTickIndex] =
-        (liquidityChanges[upperTickIndex] ?? 0n) - position.liquidity;
+        (liquidityChanges[upperTickIndex] ?? 0n) - position.liquidity
     }
-  });
+  })
 
-  const ticks: LiquidityTick[] = [];
+  const ticks: LiquidityTick[] = []
 
-  Object.entries(liquidityChanges).forEach(
-    ([tickIndex, liquidityChangeTotal]) => {
-      const index = BigInt(tickIndex);
-      const [liquidityChange, sign] =
-        liquidityChangeTotal > 0n
-          ? [liquidityChangeTotal, true]
-          : [-liquidityChangeTotal, false];
+  Object.entries(liquidityChanges).forEach(([tickIndex, liquidityChangeTotal]) => {
+    const index = BigInt(tickIndex)
+    const [liquidityChange, sign] =
+      liquidityChangeTotal > 0n ? [liquidityChangeTotal, true] : [-liquidityChangeTotal, false]
 
-      if (liquidityChange !== 0n) {
-        ticks.push({
-          index,
-          liquidityChange: liquidityChange as Liquidity,
-          sign,
-        });
-      }
+    if (liquidityChange !== 0n) {
+      ticks.push({
+        index,
+        liquidityChange: liquidityChange as Liquidity,
+        sign
+      })
     }
-  );
+  })
 
-  return ticks;
-};
+  return ticks
+}
 
-export const findClosestIndexByValue = (
-  arr: number[],
-  value: number
-): number => {
-  const high = arr.length - 1;
+export const findClosestIndexByValue = (arr: number[], value: number): number => {
+  const high = arr.length - 1
 
   if (value < arr[0]) {
-    return 0;
+    return 0
   }
 
   if (value > arr[high]) {
-    return high;
+    return high
   }
 
   for (let i = arr.length - 1; i >= 0; i--) {
     if (Number(arr[i].toFixed(0)) <= Number(value.toFixed(0))) {
-      return i;
+      return i
     }
   }
-  return high;
-};
+  return high
+}
 
-export const getNetworkStats = async (
-  name: string
-): Promise<Record<string, PoolSnapshot[]>> => {
+export const getNetworkStats = async (name: string): Promise<Record<string, PoolSnapshot[]>> => {
   const { data } = await axios.get<Record<string, PoolSnapshot[]>>(
     `https://stats.invariant.app/alph/full/${name}`
-  );
+  )
 
-  return data;
-};
+  return data
+}
 
 export const getCoingeckoPricesData = async (): Promise<CoinGeckoAPIData> => {
   const { data } = await axios.get<CoinGeckoAPIData>(
     `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${DEFAULT_TOKENS}`
-  );
+  )
 
-  return data;
-};
+  return data
+}
 
 export const getFullSnap = async (name: string): Promise<FullSnap> => {
-  const { data } = await axios.get<FullSnap>(
-    `https://stats.invariant.app/alph/full_snap/${name}`
-  );
+  const { data } = await axios.get<FullSnap>(`https://stats.invariant.app/alph/full_snap/${name}`)
 
-  return data;
-};
+  return data
+}
 
-export const containsFailedPromise = <T>(
-  promises: PromiseSettledResult<T>[]
-): boolean => {
+export const containsFailedPromise = <T>(promises: PromiseSettledResult<T>[]): boolean => {
   return (
-    promises.findIndex((promise) => {
-      if (promise.status !== "fulfilled") {
-        return true;
+    promises.findIndex(promise => {
+      if (promise.status !== 'fulfilled') {
+        return true
       }
 
       if (
-        promise.status === "fulfilled" &&
-        typeof promise.value === "string" &&
-        promise.value.startsWith("RpcError")
+        promise.status === 'fulfilled' &&
+        typeof promise.value === 'string' &&
+        promise.value.startsWith('RpcError')
       ) {
-        return true;
+        return true
       }
 
-      return false;
+      return false
     }) !== -1
-  );
-};
+  )
+}
 
 export const getFailedPromisesWithIndexes = <T>(
   promises: Promise<T>[],
   settledPromises: PromiseSettledResult<T>[]
 ): [Promise<T>, number][] => {
-  const result: ([Promise<T>, number] | null)[] = settledPromises.map(
-    (promise, index) => {
-      if (promise.status !== "fulfilled") {
-        return [promises[index], index];
-      }
-
-      if (
-        promise.status === "fulfilled" &&
-        typeof promise.value === "string" &&
-        promise.value.startsWith("RpcError")
-      ) {
-        return [promises[index], index];
-      }
-
-      return null;
+  const result: ([Promise<T>, number] | null)[] = settledPromises.map((promise, index) => {
+    if (promise.status !== 'fulfilled') {
+      return [promises[index], index]
     }
-  );
 
-  return result.filter((result) => result !== null);
-};
+    if (
+      promise.status === 'fulfilled' &&
+      typeof promise.value === 'string' &&
+      promise.value.startsWith('RpcError')
+    ) {
+      return [promises[index], index]
+    }
 
-const RETRY_LIMIT = 30;
+    return null
+  })
+
+  return result.filter(result => result !== null)
+}
+
+const RETRY_LIMIT = 30
 
 export const promiseAllUntilFulfilled = async <T>(
   promiseFunctions: (() => Promise<T>)[]
 ): Promise<T[]> => {
-  const promises = promiseFunctions.map((promiseFunction) => promiseFunction());
-  const results = await Promise.allSettled(promises);
+  const promises = promiseFunctions.map(promiseFunction => promiseFunction())
+  const results = await Promise.allSettled(promises)
 
-  let retries = 0;
-  let failedPromiseExist = containsFailedPromise(results);
+  let retries = 0
+  let failedPromiseExist = containsFailedPromise(results)
 
   while (retries < RETRY_LIMIT && failedPromiseExist) {
-    const promises = promiseFunctions.map((promiseFunction) =>
-      promiseFunction()
-    );
-    const failedPromises = getFailedPromisesWithIndexes(promises, results);
+    const promises = promiseFunctions.map(promiseFunction => promiseFunction())
+    const failedPromises = getFailedPromisesWithIndexes(promises, results)
 
     const newPromises = await Promise.allSettled(
-      failedPromises.map((failedPromise) => failedPromise[0])
-    );
+      failedPromises.map(failedPromise => failedPromise[0])
+    )
 
     newPromises.forEach((newPromise, index) => {
-      results[failedPromises[index][1]] = newPromise;
-    });
+      results[failedPromises[index][1]] = newPromise
+    })
 
-    failedPromiseExist = containsFailedPromise(results);
+    failedPromiseExist = containsFailedPromise(results)
 
-    retries++;
+    retries++
   }
 
   if (containsFailedPromise(results)) {
-    throw new Error("Failed to fetch data. Retry limit exceeded.");
+    throw new Error('Failed to fetch data. Retry limit exceeded.')
   }
 
-  return (results as PromiseFulfilledResult<T>[]).map((result) => result.value);
-};
+  return (results as PromiseFulfilledResult<T>[]).map(result => result.value)
+}
 
 export const isTransactionSuccess = async (txId: string): Promise<boolean> => {
-  const result = await web3
-    .getCurrentNodeProvider()
-    .transactions.getTransactionsDetailsTxid(txId);
-  return result.scriptExecutionOk;
-};
+  const result = await web3.getCurrentNodeProvider().transactions.getTransactionsDetailsTxid(txId)
+  return result.scriptExecutionOk
+}

@@ -1,23 +1,19 @@
-import React from "react";
-import icons from "@static/icons";
-import classNames from "classnames";
-import useStyles from "./style";
-import { ISelectNetwork } from "@store/consts/types";
-import { Grid, Popover, Typography } from "@mui/material";
-import DotIcon from "@mui/icons-material/FiberManualRecordRounded";
-import { Network } from "@invariant-labs/alph-sdk";
+import React from 'react'
+import icons from '@static/icons'
+import classNames from 'classnames'
+import useStyles from './style'
+import { ISelectNetwork } from '@store/consts/types'
+import { Grid, Popover, Typography } from '@mui/material'
+import DotIcon from '@mui/icons-material/FiberManualRecordRounded'
+import { Network } from '@invariant-labs/alph-sdk'
 
 export interface ISelectNetworkModal {
-  networks: ISelectNetwork[];
-  open: boolean;
-  anchorEl: HTMLButtonElement | null;
-  onSelect: (
-    networkType: Network,
-    rpcAddress: string,
-    rpcName?: string
-  ) => void;
-  handleClose: () => void;
-  activeNetwork: Network;
+  networks: ISelectNetwork[]
+  open: boolean
+  anchorEl: HTMLButtonElement | null
+  onSelect: (networkType: Network, rpcAddress: string, rpcName?: string) => void
+  handleClose: () => void
+  activeNetwork: Network
 }
 export const SelectNetwork: React.FC<ISelectNetworkModal> = ({
   networks,
@@ -25,9 +21,9 @@ export const SelectNetwork: React.FC<ISelectNetworkModal> = ({
   open,
   onSelect,
   handleClose,
-  activeNetwork,
+  activeNetwork
 }) => {
-  const { classes } = useStyles();
+  const { classes } = useStyles()
   return (
     <Popover
       open={open}
@@ -35,22 +31,16 @@ export const SelectNetwork: React.FC<ISelectNetworkModal> = ({
       classes={{ paper: classes.paper }}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
+        vertical: 'bottom',
+        horizontal: 'center'
       }}
       transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-    >
+        vertical: 'top',
+        horizontal: 'center'
+      }}>
       <Grid className={classes.root}>
         <Typography className={classes.title}>Select a network</Typography>
-        <Grid
-          className={classes.list}
-          container
-          alignContent="space-around"
-          direction="column"
-        >
+        <Grid className={classes.list} container alignContent='space-around' direction='column'>
           {networks.map(({ networkType, rpc, rpcName }) => (
             <Grid
               className={classNames(
@@ -60,9 +50,8 @@ export const SelectNetwork: React.FC<ISelectNetworkModal> = ({
               item
               key={`networks-${networkType}`}
               onClick={() => {
-                onSelect(networkType, rpc, rpcName);
-              }}
-            >
+                onSelect(networkType, rpc, rpcName)
+              }}>
               <img
                 className={classes.icon}
                 src={icons[`${networkType}Icon`]}
@@ -75,6 +64,6 @@ export const SelectNetwork: React.FC<ISelectNetworkModal> = ({
         </Grid>
       </Grid>
     </Popover>
-  );
-};
-export default SelectNetwork;
+  )
+}
+export default SelectNetwork

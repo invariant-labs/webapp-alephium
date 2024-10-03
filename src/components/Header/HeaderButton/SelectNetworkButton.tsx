@@ -1,55 +1,48 @@
-import { ISelectNetwork } from "@store/consts/types";
-import React from "react";
-import useStyles from "./style";
-import { blurContent, unblurContent } from "@utils/uiUtils";
-import { Button } from "@mui/material";
-import SelectNetwork from "@components/Modals/SelectNetwork/SelectNetwork";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { Network } from "@invariant-labs/alph-sdk";
+import { ISelectNetwork } from '@store/consts/types'
+import React from 'react'
+import useStyles from './style'
+import { blurContent, unblurContent } from '@utils/uiUtils'
+import { Button } from '@mui/material'
+import SelectNetwork from '@components/Modals/SelectNetwork/SelectNetwork'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
+import { Network } from '@invariant-labs/alph-sdk'
 
 export interface IProps {
-  name: Network;
-  networks: ISelectNetwork[];
-  onSelect: (
-    networkType: Network,
-    rpcAddress: string,
-    rpcName?: string
-  ) => void;
-  disabled?: boolean;
+  name: Network
+  networks: ISelectNetwork[]
+  onSelect: (networkType: Network, rpcAddress: string, rpcName?: string) => void
+  disabled?: boolean
 }
 export const SelectNetworkButton: React.FC<IProps> = ({
   name,
   networks,
   onSelect,
-  disabled = false,
+  disabled = false
 }) => {
-  const { classes } = useStyles();
-  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(
-    null
-  );
-  const [openNetworks, setOpenNetworks] = React.useState<boolean>(false);
+  const { classes } = useStyles()
+  const [anchorEl, setAnchorEl] = React.useState<HTMLButtonElement | null>(null)
+  const [openNetworks, setOpenNetworks] = React.useState<boolean>(false)
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-    blurContent();
-    setOpenNetworks(true);
-  };
+    setAnchorEl(event.currentTarget)
+    blurContent()
+    setOpenNetworks(true)
+  }
 
   const handleClose = () => {
-    unblurContent();
-    setOpenNetworks(false);
-  };
+    unblurContent()
+    setOpenNetworks(false)
+  }
 
   return (
     <>
       <Button
         className={classes.headerButton}
-        variant="contained"
+        variant='contained'
         classes={{ disabled: classes.disabled }}
         disabled={disabled}
-        endIcon={<KeyboardArrowDownIcon id="downIcon" />}
-        onClick={handleClick}
-      >
+        endIcon={<KeyboardArrowDownIcon id='downIcon' />}
+        onClick={handleClick}>
         {name}
       </Button>
       <SelectNetwork
@@ -57,13 +50,13 @@ export const SelectNetworkButton: React.FC<IProps> = ({
         open={openNetworks}
         anchorEl={anchorEl}
         onSelect={(networkType, rpcAddress, rpcName) => {
-          onSelect(networkType, rpcAddress, rpcName);
-          handleClose();
+          onSelect(networkType, rpcAddress, rpcName)
+          handleClose()
         }}
         handleClose={handleClose}
         activeNetwork={name}
       />
     </>
-  );
-};
-export default SelectNetworkButton;
+  )
+}
+export default SelectNetworkButton

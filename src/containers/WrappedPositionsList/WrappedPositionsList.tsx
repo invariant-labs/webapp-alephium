@@ -1,72 +1,72 @@
-import { PositionsList } from "@components/PositionsList/PositionsList";
+import { PositionsList } from '@components/PositionsList/PositionsList'
 import {
   calculateTokenAmounts,
   getMaxTick,
   getMinTick,
   Network,
-  PERCENTAGE_SCALE,
-} from "@invariant-labs/alph-sdk";
-import { POSITIONS_PER_PAGE } from "@store/consts/static";
+  PERCENTAGE_SCALE
+} from '@invariant-labs/alph-sdk'
+import { POSITIONS_PER_PAGE } from '@store/consts/static'
 import {
   calcYPerXPriceByTickIndex,
   positionListPageToQueryPage,
   calcPriceBySqrtPrice,
-  printBigint,
-} from "@utils/utils";
-import { actions } from "@store/reducers/positions";
-import { Status } from "@store/reducers/wallet";
+  printBigint
+} from '@utils/utils'
+import { actions } from '@store/reducers/positions'
+import { Status } from '@store/reducers/wallet'
 import {
   isLoadingPositionsList,
   lastPageSelector,
   positionsList,
-  positionsWithPoolsData,
-} from "@store/selectors/positions";
-import { address, status } from "@store/selectors/wallet";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { IPositionItem } from "@components/PositionsList/PositionItem/PositionItem";
-import { useConnect } from "@alephium/web3-react";
+  positionsWithPoolsData
+} from '@store/selectors/positions'
+import { address, status } from '@store/selectors/wallet'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { IPositionItem } from '@components/PositionsList/PositionItem/PositionItem'
+import { useConnect } from '@alephium/web3-react'
 
 export const WrappedPositionsList: React.FC = () => {
-  const walletAddress = useSelector(address);
-  const list = useSelector(positionsWithPoolsData);
-  const isLoading = useSelector(isLoadingPositionsList);
-  const lastPage = useSelector(lastPageSelector);
-  const walletStatus = useSelector(status);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { loadedPages, length } = useSelector(positionsList);
-  const { connect } = useConnect();
+  const walletAddress = useSelector(address)
+  const list = useSelector(positionsWithPoolsData)
+  const isLoading = useSelector(isLoadingPositionsList)
+  const lastPage = useSelector(lastPageSelector)
+  const walletStatus = useSelector(status)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const { loadedPages, length } = useSelector(positionsList)
+  const { connect } = useConnect()
 
-  const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string>('')
 
   const handleSearchValue = (value: string) => {
-    setValue(value);
-  };
+    setValue(value)
+  }
 
   const setLastPage = (page: number) => {
-    dispatch(actions.setLastPage(page));
-  };
+    dispatch(actions.setLastPage(page))
+  }
 
   useEffect(() => {
     if (list.length === 0) {
-      setLastPage(1);
+      setLastPage(1)
     }
 
     if (lastPage > Math.ceil(list.length / POSITIONS_PER_PAGE)) {
-      setLastPage(lastPage === 1 ? 1 : lastPage - 1);
+      setLastPage(lastPage === 1 ? 1 : lastPage - 1)
     }
-  }, [list]);
+  }, [list])
 
   const handleRefresh = () => {
     dispatch(
       actions.getPositionsListPage({
         index: positionListPageToQueryPage(lastPage),
-        refresh: true,
+        refresh: true
       })
-    );
-  };
+    )
+  }
 
   const data: IPositionItem[] = list
     .map((position, index) => {
@@ -76,43 +76,40 @@ export const WrappedPositionsList: React.FC = () => {
           position.tokenX.decimals,
           position.tokenY.decimals
         )
-      );
+      )
       const upperPrice = Number(
         calcYPerXPriceByTickIndex(
           position.upperTickIndex,
           position.tokenX.decimals,
           position.tokenY.decimals
         )
-      );
-      const minTick = getMinTick(position.poolKey.feeTier.tickSpacing);
-      const maxTick = getMaxTick(position.poolKey.feeTier.tickSpacing);
+      )
+      const minTick = getMinTick(position.poolKey.feeTier.tickSpacing)
+      const maxTick = getMaxTick(position.poolKey.feeTier.tickSpacing)
 
-      const min = Math.min(lowerPrice, upperPrice);
-      const max = Math.max(lowerPrice, upperPrice);
+      const min = Math.min(lowerPrice, upperPrice)
+      const max = Math.max(lowerPrice, upperPrice)
 
-      let tokenXLiq, tokenYLiq;
+      let tokenXLiq, tokenYLiq
 
-      let x = 0n;
-      let y = 0n;
+      let x = 0n
+      let y = 0n
       if (position.poolData) {
-        const [amountX, amountY] = calculateTokenAmounts(
-          position.poolData,
-          position
-        );
-        x = amountX;
-        y = amountY;
+        const [amountX, amountY] = calculateTokenAmounts(position.poolData, position)
+        x = amountX
+        y = amountY
       }
 
       try {
-        tokenXLiq = +printBigint(x, position.tokenX.decimals);
+        tokenXLiq = +printBigint(x, position.tokenX.decimals)
       } catch (error) {
-        tokenXLiq = 0;
+        tokenXLiq = 0
       }
 
       try {
-        tokenYLiq = +printBigint(y, position.tokenY.decimals);
+        tokenYLiq = +printBigint(y, position.tokenY.decimals)
       } catch (error) {
-        tokenYLiq = 0;
+        tokenYLiq = 0
       }
 
       const currentPrice = calcPriceBySqrtPrice(
@@ -120,10 +117,10 @@ export const WrappedPositionsList: React.FC = () => {
         true,
         position.tokenX.decimals,
         position.tokenY.decimals
-      );
+      )
 
-      const valueX = tokenXLiq + tokenYLiq / currentPrice;
-      const valueY = tokenYLiq + tokenXLiq * currentPrice;
+      const valueX = tokenXLiq + tokenYLiq / currentPrice
+      const valueY = tokenYLiq + tokenXLiq * currentPrice
 
       return {
         tokenXName: position.tokenX.symbol,
@@ -142,28 +139,21 @@ export const WrappedPositionsList: React.FC = () => {
         tokenXLiq,
         tokenYLiq,
         network: Network.Testnet,
-        isFullRange:
-          position.lowerTickIndex === minTick &&
-          position.upperTickIndex === maxTick,
-      };
+        isFullRange: position.lowerTickIndex === minTick && position.upperTickIndex === maxTick
+      }
     })
-    .filter((item) => {
+    .filter(item => {
       return (
         item.tokenXName.toLowerCase().includes(value.toLowerCase()) ||
         item.tokenYName.toLowerCase().includes(value.toLowerCase())
-      );
-    });
+      )
+    })
 
   useEffect(() => {
-    if (
-      walletStatus === Status.Initialized &&
-      walletAddress &&
-      !loadedPages[0] &&
-      !length
-    ) {
-      dispatch(actions.getPositionsListPage({ index: 0, refresh: false }));
+    if (walletStatus === Status.Initialized && walletAddress && !loadedPages[0] && !length) {
+      dispatch(actions.getPositionsListPage({ index: 0, refresh: false }))
     }
-  }, [walletStatus, loadedPages]);
+  }, [walletStatus, loadedPages])
 
   return (
     <PositionsList
@@ -173,7 +163,7 @@ export const WrappedPositionsList: React.FC = () => {
       searchSetValue={handleSearchValue}
       handleRefresh={handleRefresh}
       onAddPositionClick={() => {
-        navigate("/newPosition");
+        navigate('/newPosition')
       }}
       data={data}
       loading={isLoading}
@@ -181,37 +171,31 @@ export const WrappedPositionsList: React.FC = () => {
       itemsPerPage={POSITIONS_PER_PAGE}
       noConnectedBlockerProps={{
         onConnect: async () => {
-          await connect();
+          await connect()
         },
-        title: "Start exploring liquidity pools right now!",
-        descCustomText:
-          "Or, connect your wallet to see existing positions, and create a new one!",
+        title: 'Start exploring liquidity pools right now!',
+        descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!'
       }}
-      pageChanged={(page) => {
-        const index = positionListPageToQueryPage(page);
+      pageChanged={page => {
+        const index = positionListPageToQueryPage(page)
 
-        if (
-          walletStatus === Status.Initialized &&
-          walletAddress &&
-          !loadedPages[index] &&
-          length
-        ) {
+        if (walletStatus === Status.Initialized && walletAddress && !loadedPages[index] && length) {
           dispatch(
             actions.getPositionsListPage({
               index,
-              refresh: false,
+              refresh: false
             })
-          );
+          )
         }
       }}
       length={length}
       loadedPages={loadedPages}
       getRemainingPositions={() => {
-        dispatch(actions.getRemainingPositions({ setLoaded: true }));
+        dispatch(actions.getRemainingPositions({ setLoaded: true }))
       }}
       noInitialPositions={list.length === 0}
     />
-  );
-};
+  )
+}
 
-export default WrappedPositionsList;
+export default WrappedPositionsList

@@ -1,7 +1,7 @@
-import MarketEvents from "./market";
+import MarketEvents from './market'
 
 const EventHandler = () => {
-  return <MarketEvents />;
-};
+  return <MarketEvents />
+}
 
-export default EventHandler;
+export default EventHandler

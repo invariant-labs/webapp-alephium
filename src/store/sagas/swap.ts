@@ -8,10 +8,10 @@ import {
   SqrtPrice,
   Percentage,
   Invariant,
-  TokenAmount,
-} from "@invariant-labs/alph-sdk";
-import { PayloadAction } from "@reduxjs/toolkit";
-import { U128MAX } from "@store/consts/static";
+  TokenAmount
+} from '@invariant-labs/alph-sdk'
+import { PayloadAction } from '@reduxjs/toolkit'
+import { U128MAX } from '@store/consts/static'
 import {
   calculateAmountInWithSlippage,
   createLoaderKey,
@@ -21,23 +21,21 @@ import {
   isErrorMessage,
   isTransactionSuccess,
   poolKeyToString,
-  printBigint,
-} from "@utils/utils";
-import { actions as poolActions } from "@store/reducers/pools";
-import { actions as snackbarsActions } from "@store/reducers/snackbars";
-import { actions as positionsActions } from "@store/reducers/positions";
-import { Simulate, Swap, actions } from "@store/reducers/swap";
-import { invariantAddress } from "@store/selectors/connection";
-import { poolTicks, pools, tickMaps, tokens } from "@store/selectors/pools";
-import { address, signer } from "@store/selectors/wallet";
-import { closeSnackbar } from "notistack";
-import { all, call, put, select, spawn, takeEvery } from "typed-redux-saga";
-import { fetchBalances } from "./wallet";
-import { balanceOf } from "@invariant-labs/alph-sdk/dist/src/utils";
+  printBigint
+} from '@utils/utils'
+import { actions as poolActions } from '@store/reducers/pools'
+import { actions as snackbarsActions } from '@store/reducers/snackbars'
+import { actions as positionsActions } from '@store/reducers/positions'
+import { Simulate, Swap, actions } from '@store/reducers/swap'
+import { invariantAddress } from '@store/selectors/connection'
+import { poolTicks, pools, tickMaps, tokens } from '@store/selectors/pools'
+import { address, signer } from '@store/selectors/wallet'
+import { closeSnackbar } from 'notistack'
+import { all, call, put, select, spawn, takeEvery } from 'typed-redux-saga'
+import { fetchBalances } from './wallet'
+import { balanceOf } from '@invariant-labs/alph-sdk/dist/src/utils'
 
-export function* handleSwap(
-  action: PayloadAction<Omit<Swap, "txid">>
-): Generator {
+export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generator {
   const {
     poolKey,
     tokenFrom,
@@ -46,67 +44,57 @@ export function* handleSwap(
     amountOut,
     byAmountIn,
     estimatedPriceAfterSwap,
-    tokenTo,
-  } = action.payload;
+    tokenTo
+  } = action.payload
 
   if (!poolKey) {
-    return;
+    return
   }
 
-  const loaderSwappingTokens = createLoaderKey();
+  const loaderSwappingTokens = createLoaderKey()
 
   try {
     yield put(
       snackbarsActions.add({
-        message: "Exchanging tokens...",
-        variant: "pending",
+        message: 'Exchanging tokens...',
+        variant: 'pending',
         persist: true,
-        key: loaderSwappingTokens,
+        key: loaderSwappingTokens
       })
-    );
+    )
 
-    const walletAddress = yield* select(address);
-    const walletSigner = yield* select(signer);
+    const walletAddress = yield* select(address)
+    const walletSigner = yield* select(signer)
 
     if (!walletSigner) {
       return yield* put(
         snackbarsActions.add({
-          message: "Connect wallet to create position.",
-          variant: "error",
-          persist: false,
+          message: 'Connect wallet to create position.',
+          variant: 'error',
+          persist: false
         })
-      );
+      )
     }
 
-    const allTokens = yield* select(tokens);
-    const invAddress = yield* select(invariantAddress);
-    const invariant = yield* call(Invariant.load, invAddress);
+    const allTokens = yield* select(tokens)
+    const invAddress = yield* select(invariantAddress)
+    const invariant = yield* call(Invariant.load, invAddress)
 
-    const tokenX = allTokens[poolKey.tokenX];
-    const tokenY = allTokens[poolKey.tokenY];
-    const xToY = tokenFrom.toString() === poolKey.tokenX;
+    const tokenX = allTokens[poolKey.tokenX]
+    const tokenY = allTokens[poolKey.tokenY]
+    const xToY = tokenFrom.toString() === poolKey.tokenX
 
     const sqrtPriceLimit = calculateSqrtPriceAfterSlippage(
       estimatedPriceAfterSwap as SqrtPrice,
       slippage as Percentage,
       !xToY
-    );
+    )
     const calculatedAmountIn = slippage
-      ? calculateAmountInWithSlippage(
-          amountOut,
-          sqrtPriceLimit,
-          xToY,
-          poolKey.feeTier.fee
-        )
-      : amountIn;
+      ? calculateAmountInWithSlippage(amountOut, sqrtPriceLimit, xToY, poolKey.feeTier.fee)
+      : amountIn
 
-    const balance = yield* call(
-      balanceOf,
-      xToY ? tokenX.address : tokenY.address,
-      walletAddress
-    );
-    const amountInWithBalance =
-      balance > calculatedAmountIn ? calculatedAmountIn : balance;
+    const balance = yield* call(balanceOf, xToY ? tokenX.address : tokenY.address, walletAddress)
+    const amountInWithBalance = balance > calculatedAmountIn ? calculatedAmountIn : balance
 
     const swapTxId = yield* call(
       [invariant, invariant.swapWithSlippage],
@@ -118,75 +106,75 @@ export function* handleSwap(
       estimatedPriceAfterSwap as SqrtPrice,
       slippage as Percentage,
       amountInWithBalance as TokenAmount
-    );
+    )
 
-    const result = yield* call(isTransactionSuccess, swapTxId);
+    const result = yield* call(isTransactionSuccess, swapTxId)
     if (!result) {
-      throw new Error("Transaction failed");
+      throw new Error('Transaction failed')
     }
 
-    closeSnackbar(loaderSwappingTokens);
-    yield put(snackbarsActions.remove(loaderSwappingTokens));
+    closeSnackbar(loaderSwappingTokens)
+    yield put(snackbarsActions.remove(loaderSwappingTokens))
 
     yield put(
       snackbarsActions.add({
-        message: "Tokens exchanged.",
-        variant: "success",
+        message: 'Tokens exchanged.',
+        variant: 'success',
         persist: false,
-        txid: swapTxId,
+        txid: swapTxId
       })
-    );
+    )
 
-    yield* call(fetchBalances, [poolKey.tokenX, poolKey.tokenY]);
+    yield* call(fetchBalances, [poolKey.tokenX, poolKey.tokenY])
 
-    yield put(actions.setSwapSuccess(true));
+    yield put(actions.setSwapSuccess(true))
 
     yield put(
       poolActions.getAllPoolsForPairData({
         first: tokenFrom,
-        second: tokenTo,
+        second: tokenTo
       })
-    );
+    )
 
     yield put(
       positionsActions.getCurrentPlotTicks({
         poolKey,
-        isXtoY: xToY,
+        isXtoY: xToY
       })
-    );
+    )
   } catch (e: unknown) {
-    const error = ensureError(e);
-    console.log(error);
+    const error = ensureError(e)
+    console.log(error)
 
-    yield put(actions.setSwapSuccess(false));
+    yield put(actions.setSwapSuccess(false))
 
-    closeSnackbar(loaderSwappingTokens);
-    yield put(snackbarsActions.remove(loaderSwappingTokens));
+    closeSnackbar(loaderSwappingTokens)
+    yield put(snackbarsActions.remove(loaderSwappingTokens))
 
     if (isErrorMessage(error.message)) {
       yield put(
         snackbarsActions.add({
           message: error.message,
-          variant: "error",
-          persist: false,
+          variant: 'error',
+          persist: false
         })
-      );
+      )
     } else {
       yield put(
         snackbarsActions.add({
-          message: "Tokens exchange failed. Please try again.",
-          variant: "error",
-          persist: false,
+          message: 'Tokens exchange failed. Please try again.',
+          variant: 'error',
+          persist: false
         })
-      );
+      )
     }
 
     yield put(
       poolActions.getAllPoolsForPairData({
         first: tokenFrom,
-        second: tokenTo,
+        second: tokenTo
       })
-    );
+    )
   }
 }
 
@@ -196,16 +184,16 @@ export enum SwapError {
   NoRouteFound,
   MaxSwapStepsReached,
   StateOutdated,
-  Unknown,
+  Unknown
 }
 
 export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
   try {
-    const allPools = yield* select(pools);
-    const allTickmaps = yield* select(tickMaps);
-    const allTicks = yield* select(poolTicks);
+    const allPools = yield* select(pools)
+    const allTickmaps = yield* select(tickMaps)
+    const allTicks = yield* select(poolTicks)
 
-    const { fromToken, toToken, amount, byAmountIn } = action.payload;
+    const { fromToken, toToken, amount, byAmountIn } = action.payload
 
     if (amount === 0n) {
       yield put(
@@ -215,17 +203,17 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           priceImpact: 0,
           targetSqrtPrice: 0n,
           fee: 0n,
-          errors: [SwapError.AmountIsZero],
+          errors: [SwapError.AmountIsZero]
         })
-      );
-      return;
+      )
+      return
     }
 
     const filteredPools = findPairs(
       fromToken.toString(),
       toToken.toString(),
       Object.values(allPools)
-    );
+    )
     if (!filteredPools) {
       yield put(
         actions.setSimulateResult({
@@ -234,28 +222,28 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           priceImpact: 0,
           targetSqrtPrice: 0n,
           fee: 0n,
-          errors: [SwapError.NoRouteFound],
+          errors: [SwapError.NoRouteFound]
         })
-      );
-      return;
+      )
+      return
     }
 
-    let poolKey = null;
-    let amountOut = byAmountIn ? 0n : U128MAX;
-    let insufficientLiquidityAmountOut = byAmountIn ? 0n : U128MAX;
-    let priceImpact = 0;
-    let targetSqrtPrice = 0n;
-    let fee = 0n;
+    let poolKey = null
+    let amountOut = byAmountIn ? 0n : U128MAX
+    let insufficientLiquidityAmountOut = byAmountIn ? 0n : U128MAX
+    let priceImpact = 0
+    let targetSqrtPrice = 0n
+    let fee = 0n
 
-    let swapPossible = false;
+    let swapPossible = false
 
-    const errors = [];
+    const errors = []
 
     for (const pool of filteredPools) {
-      const xToY = fromToken.toString() === pool.poolKey.tokenX;
+      const xToY = fromToken.toString() === pool.poolKey.tokenX
 
       try {
-        const newPool = { ...allPools[poolKeyToString(pool.poolKey)] };
+        const newPool = { ...allPools[poolKeyToString(pool.poolKey)] }
         const result = simulateInvariantSwap(
           deserializeTickmap(allTickmaps[poolKeyToString(pool.poolKey)]),
           newPool,
@@ -264,7 +252,7 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           amount as TokenAmount,
           byAmountIn,
           xToY ? MIN_SQRT_PRICE : MAX_SQRT_PRICE
-        );
+        )
 
         if (result.swapStepLimitReached || result.insufficientLiquidity) {
           if (
@@ -272,50 +260,42 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
               ? result.amountOut > insufficientLiquidityAmountOut
               : result.amountIn > insufficientLiquidityAmountOut
           ) {
-            insufficientLiquidityAmountOut = byAmountIn
-              ? result.amountOut
-              : result.amountIn;
-            fee = pool.poolKey.feeTier.fee;
-            priceImpact = 1;
-            errors.push(SwapError.MaxSwapStepsReached);
+            insufficientLiquidityAmountOut = byAmountIn ? result.amountOut : result.amountIn
+            fee = pool.poolKey.feeTier.fee
+            priceImpact = 1
+            errors.push(SwapError.MaxSwapStepsReached)
           }
 
-          continue;
+          continue
         }
 
         if (result.stateOutdated) {
-          errors.push(SwapError.StateOutdated);
-          continue;
+          errors.push(SwapError.StateOutdated)
+          continue
         }
 
         if (result.amountOut === 0n) {
-          errors.push(SwapError.AmountIsZero);
-          continue;
+          errors.push(SwapError.AmountIsZero)
+          continue
         }
 
-        if (
-          byAmountIn
-            ? result.amountOut > amountOut
-            : result.amountIn < amountOut
-        ) {
-          swapPossible = true;
-          amountOut = byAmountIn ? result.amountOut : result.amountIn;
-          poolKey = pool.poolKey;
+        if (byAmountIn ? result.amountOut > amountOut : result.amountIn < amountOut) {
+          swapPossible = true
+          amountOut = byAmountIn ? result.amountOut : result.amountIn
+          poolKey = pool.poolKey
           priceImpact = +printBigint(
             calculatePriceImpact(pool.sqrtPrice, result.targetSqrtPrice),
             PERCENTAGE_SCALE
-          );
-          targetSqrtPrice = result.targetSqrtPrice;
+          )
+          targetSqrtPrice = result.targetSqrtPrice
         }
       } catch (e) {
-        console.log(e);
-        errors.push(SwapError.Unknown);
+        console.log(e)
+        errors.push(SwapError.Unknown)
       }
     }
 
-    const validatedAmountOut = swapPossible
-      ? amountOut
-      : insufficientLiquidityAmountOut;
+    const validatedAmountOut = swapPossible ? amountOut : insufficientLiquidityAmountOut
 
     yield put(
       actions.setSimulateResult({
@@ -324,22 +304,22 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
         priceImpact,
         targetSqrtPrice,
         fee,
-        errors,
+        errors
       })
-    );
+    )
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
 }
 
 export function* swapHandler(): Generator {
-  yield* takeEvery(actions.swap, handleSwap);
+  yield* takeEvery(actions.swap, handleSwap)
 }
 
 export function* getSimulateResultHandler(): Generator {
-  yield* takeEvery(actions.getSimulateResult, handleGetSimulateResult);
+  yield* takeEvery(actions.getSimulateResult, handleGetSimulateResult)
 }
 
 export function* swapSaga(): Generator {
-  yield all([swapHandler, getSimulateResultHandler].map(spawn));
+  yield all([swapHandler, getSimulateResultHandler].map(spawn))
 }
