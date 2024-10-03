@@ -587,9 +587,7 @@ export const NewPositionWrapper: React.FC<IProps> = ({
         dispatch(
           positionsActions.getCurrentPlotTicks({
             poolKey: allPoolKeys[poolKey],
-            isXtoY:
-              allPools[poolIndex].poolKey.tokenX ===
-              (currentPairReversed === true ? tokenB : tokenA),
+            isXtoY: allPools[poolIndex].poolKey.tokenX === tokenA,
             fetchTicksAndTickmap: true,
           })
         );
