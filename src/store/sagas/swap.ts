@@ -301,7 +301,7 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
       actions.setSimulateResult({
         poolKey: swapPossible ? poolKey : null,
         amountOut: validatedAmountOut,
-        priceImpact,
+        priceImpact: swapPossible ? priceImpact : 1,
         targetSqrtPrice,
         fee,
         errors
