@@ -52,6 +52,7 @@ export interface IHeader {
   defaultMainnetRPC: string;
   connectModalShown: boolean;
   setShowConnectModal: (show: boolean) => void;
+  connecting: boolean;
 }
 
 export const Header: React.FC<IHeader> = ({
@@ -73,6 +74,7 @@ export const Header: React.FC<IHeader> = ({
   defaultMainnetRPC,
   connectModalShown,
   setShowConnectModal,
+  connecting,
 }) => {
   const { classes } = useStyles();
   const buttonStyles = useButtonStyles();
@@ -274,6 +276,7 @@ export const Header: React.FC<IHeader> = ({
             open={connectModalShown}
             handleClose={() => setShowConnectModal(false)}
             onConnectWallet={onConnectWallet}
+            connecting={connecting}
           />
         </Grid>
 

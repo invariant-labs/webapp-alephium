@@ -1,16 +1,18 @@
-import { Button, Grid, Popover, Typography } from "@mui/material";
+import { Box, Button, Popover, Typography } from "@mui/material";
 import useStyles from "./style";
 
 export interface Props {
   open: boolean;
   handleClose: () => void;
   onConnectWallet: (id: "injected" | "walletConnect" | "desktopWallet") => void;
+  connecting: boolean;
 }
 
 export const ConnectModal: React.FC<Props> = ({
   open,
   handleClose,
   onConnectWallet,
+  connecting,
 }) => {
   const { classes } = useStyles();
 
@@ -30,27 +32,68 @@ export const ConnectModal: React.FC<Props> = ({
         horizontal: "center",
       }}
     >
-      <Grid className={classes.modal}>
-        <Typography className={classes.title}>Select wallet</Typography>
-        <Button
-          className={classes.button}
-          onClick={() => onConnectWallet("injected")}
-        >
-          Extension Wallet
-        </Button>
-        <Button
-          className={classes.button}
-          onClick={() => onConnectWallet("walletConnect")}
-        >
-          Wallet Connect
-        </Button>
-        <Button
-          className={classes.button}
-          onClick={() => onConnectWallet("desktopWallet")}
-        >
-          Desktop Wallet
-        </Button>
-      </Grid>
+      <Box className={classes.modal}>
+        <Typography className={classes.title}>Connect wallet</Typography>
+        <Box className={classes.container}>
+          <Box className={classes.leftPanel}>
+            <Button
+              className={classes.button}
+              onClick={() => onConnectWallet("injected")}
+            >
+              Extension Wallet
+            </Button>
+            <Button
+              className={classes.button}
+              onClick={() => onConnectWallet("walletConnect")}
+            >
+              Wallet Connect
+            </Button>
+            <Button
+              className={classes.button}
+              onClick={() => onConnectWallet("desktopWallet")}
+            >
+              Desktop Wallet
+            </Button>
+          </Box>
+          <Box className={classes.rightPanel}>
+            {connecting ? (
+              <>
+                <svg width="48" height="48" className={classes.spinner}>
+                  <circle
+                    stroke="#3A466B"
+                    strokeWidth="4"
+                    fill="transparent"
+                    r="12"
+                    cx="24"
+                    cy="24"
+                  />
+                  <circle
+                    strokeDasharray="20 100"
+                    stroke="#EF84F5"
+                    strokeWidth="4"
+                    fill="transparent"
+                    r="12"
+                    cx="24"
+                    cy="24"
+                  />
+                </svg>
+                <Typography className={classes.description}>
+                  Connecting wallet...
+                </Typography>
+              </>
+            ) : (
+              <>
+                <Typography className={classes.description}>
+                  You need a wallet to connect to the app.
+                </Typography>
+                <a href="https://alephium.org/#wallets" target="_blank">
+                  <Button className={classes.otherButton}>Get a wallet</Button>
+                </a>
+              </>
+            )}
+          </Box>
+        </Box>
+      </Box>
     </Popover>
   );
 };

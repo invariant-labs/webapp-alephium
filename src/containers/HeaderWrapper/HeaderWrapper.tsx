@@ -27,11 +27,12 @@ export const HeaderWrapper: React.FC = () => {
   const walletAddress = useSelector(address);
   const navigate = useNavigate();
   const { connect, disconnect } = useConnect();
-  const { signer, account } = useWallet();
+  const { connectionStatus, signer, account } = useWallet();
   const [wasEagerConnect, setWasEagerConnect] = useState(true);
   const connectModalShown = useSelector(showConnectModal);
   const context = useConnectSettingContext();
   const [connectClicked, setConnectClicked] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     if (account && signer) {
@@ -92,7 +93,9 @@ export const HeaderWrapper: React.FC = () => {
     const run = async () => {
       if (connectClicked) {
         setConnectClicked(false);
+        setConnecting(true);
         await connect();
+        setConnecting(false);
       }
     };
 
@@ -106,6 +109,47 @@ export const HeaderWrapper: React.FC = () => {
       unblurContent();
     }
   }, [connectModalShown]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const alephiumDesktopWalletWindow = (window as any)
+        .alephiumDesktopWalletWindow as Window;
+
+      const walletConnectWindowExist = !!document.querySelector(
+        ".walletconnect-modal__headerLogo"
+      );
+
+      if (
+        connecting &&
+        context.connectorId === "walletConnect" &&
+        !walletConnectWindowExist
+      ) {
+        setConnecting(false);
+      }
+
+      if (
+        connecting &&
+        context.connectorId === "desktopWallet" &&
+        alephiumDesktopWalletWindow.closed
+      ) {
+        setConnecting(false);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [connecting, context.connectorId]);
+
+  const isConnecting = () => {
+    if (context.connectorId === "injected") {
+      return connectionStatus === "connecting";
+    } else if (context.connectorId === "walletConnect") {
+      return connectionStatus === "connecting" && connecting;
+    } else if (context.connectorId === "desktopWallet") {
+      return connectionStatus === "connecting" || connecting;
+    }
+
+    return false;
+  };
 
   return (
     <Header
@@ -157,7 +201,7 @@ export const HeaderWrapper: React.FC = () => {
         );
       }}
       onChangeWallet={async () => {
-        disconnect();
+        await disconnect();
         setShowConnectModal(true);
       }}
       activeChain={activeChain}
@@ -170,6 +214,7 @@ export const HeaderWrapper: React.FC = () => {
       defaultMainnetRPC={defaultMainnetRPC}
       connectModalShown={connectModalShown}
       setShowConnectModal={setShowConnectModal}
+      connecting={isConnecting()}
     />
   );
 };
