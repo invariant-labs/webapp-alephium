@@ -1,18 +1,18 @@
-import React from "react";
-import icons from "@static/icons";
-import classNames from "classnames";
-import useStyles from "./style";
-import { Grid, Popover, Typography } from "@mui/material";
-import DotIcon from "@mui/icons-material/FiberManualRecordRounded";
-import { ISelectChain } from "@store/consts/types";
+import React from 'react'
+import icons from '@static/icons'
+import classNames from 'classnames'
+import useStyles from './style'
+import { Grid, Popover, Typography } from '@mui/material'
+import DotIcon from '@mui/icons-material/FiberManualRecordRounded'
+import { ISelectChain } from '@store/consts/types'
 
 export interface ISelectChainModal {
-  chains: ISelectChain[];
-  open: boolean;
-  anchorEl: HTMLButtonElement | null;
-  onSelect: (chain: ISelectChain) => void;
-  handleClose: () => void;
-  activeChain: ISelectChain;
+  chains: ISelectChain[]
+  open: boolean
+  anchorEl: HTMLButtonElement | null
+  onSelect: (chain: ISelectChain) => void
+  handleClose: () => void
+  activeChain: ISelectChain
 }
 export const SelectChain: React.FC<ISelectChainModal> = ({
   chains,
@@ -20,9 +20,9 @@ export const SelectChain: React.FC<ISelectChainModal> = ({
   open,
   onSelect,
   handleClose,
-  activeChain,
+  activeChain
 }) => {
-  const { classes } = useStyles();
+  const { classes } = useStyles()
   return (
     <Popover
       open={open}
@@ -30,23 +30,17 @@ export const SelectChain: React.FC<ISelectChainModal> = ({
       classes={{ paper: classes.paper }}
       onClose={handleClose}
       anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
+        vertical: 'bottom',
+        horizontal: 'center'
       }}
       transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-    >
+        vertical: 'top',
+        horizontal: 'center'
+      }}>
       <Grid className={classes.root}>
         <Typography className={classes.title}>Select a chain</Typography>
-        <Grid
-          className={classes.list}
-          container
-          alignContent="space-around"
-          direction="column"
-        >
-          {chains.map((chain) => (
+        <Grid className={classes.list} container alignContent='space-around' direction='column'>
+          {chains.map(chain => (
             <Grid
               className={classNames(
                 classes.listItem,
@@ -55,12 +49,11 @@ export const SelectChain: React.FC<ISelectChainModal> = ({
               item
               key={`chain-${chain.name}`}
               onClick={() => {
-                onSelect(chain);
-              }}
-            >
+                onSelect(chain)
+              }}>
               <img
                 className={classes.icon}
-                src={icons[chain.name.replace(/\s/g, "")]}
+                src={icons[chain.name.replace(/\s/g, '')]}
                 alt={`${chain.name} icon`}
               />
               <Typography className={classes.name}>{chain.name}</Typography>
@@ -70,6 +63,6 @@ export const SelectChain: React.FC<ISelectChainModal> = ({
         </Grid>
       </Grid>
     </Popover>
-  );
-};
-export default SelectChain;
+  )
+}
+export default SelectChain

@@ -1,101 +1,99 @@
-import { SignerProvider } from "@alephium/web3";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { PayloadType } from "@store/consts/types";
+import { SignerProvider } from '@alephium/web3'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PayloadType } from '@store/consts/types'
 
 export enum Status {
-  Uninitialized = "uninitialized",
-  Init = "init",
-  Error = "error",
-  Initialized = "initalized",
+  Uninitialized = 'uninitialized',
+  Init = 'init',
+  Error = 'error',
+  Initialized = 'initalized'
 }
 
 export interface ITokenBalance {
-  address: string;
-  balance: bigint;
+  address: string
+  balance: bigint
 }
 
 export interface IAlephiumWallet {
-  status: Status;
-  address: string;
-  balance: bigint;
-  tokensBalances: { [key in string]: ITokenBalance };
-  balanceLoading: boolean;
-  signer: SignerProvider | null;
+  status: Status
+  address: string
+  balance: bigint
+  tokensBalances: { [key in string]: ITokenBalance }
+  balanceLoading: boolean
+  signer: SignerProvider | null
 }
 
 export const defaultState: IAlephiumWallet = {
   status: Status.Uninitialized,
-  address: "",
+  address: '',
   balance: 0n,
   tokensBalances: {},
   balanceLoading: false,
-  signer: null,
-};
-export const walletSliceName = "wallet";
+  signer: null
+}
+export const walletSliceName = 'wallet'
 const walletSlice = createSlice({
   name: walletSliceName,
   initialState: defaultState,
   reducers: {
     resetState() {
-      return defaultState;
+      return defaultState
     },
     setAddress(state, action: PayloadAction<string>) {
-      state.address = action.payload;
-      return state;
+      state.address = action.payload
+      return state
     },
     setStatus(state, action: PayloadAction<Status>) {
-      state.status = action.payload;
-      return state;
+      state.status = action.payload
+      return state
     },
     setBalance(state, action: PayloadAction<bigint>) {
-      state.balance = action.payload;
-      return state;
+      state.balance = action.payload
+      return state
     },
     getBalance(state) {
-      return state;
+      return state
     },
     getBalances(state, _action: PayloadAction<string[]>) {
-      return state;
+      return state
     },
     setIsBalanceLoading(state, action: PayloadAction<boolean>) {
-      action.payload
-        ? (state.balanceLoading = true)
-        : (state.balanceLoading = false);
-      return state;
+      action.payload ? (state.balanceLoading = true) : (state.balanceLoading = false)
+      return state
     },
     addTokenBalance(state, action: PayloadAction<ITokenBalance>) {
-      state.tokensBalances[action.payload.address] = action.payload;
-      return state;
+      state.tokensBalances[action.payload.address] = action.payload
+      return state
     },
     addTokenBalances(state, action: PayloadAction<ITokenBalance[]>) {
-      action.payload.forEach((account) => {
-        state.tokensBalances[account.address] = account;
-      });
-      return state;
+      action.payload.forEach(account => {
+        state.tokensBalances[account.address] = account
+      })
+      return state
     },
     setTokenBalance(state, action: PayloadAction<ITokenBalance>) {
-      state.tokensBalances[action.payload.address.toString()] = action.payload;
-      return state;
+      state.tokensBalances[action.payload.address.toString()] = action.payload
+      return state
     },
     airdrop() {},
     connect(
       state,
       _action: PayloadAction<{
-        isEagerConnect: boolean;
-        signer: SignerProvider;
+        isEagerConnect: boolean
+        signer: SignerProvider
       }>
     ) {
-      return state;
+      return state
     },
     disconnect() {},
     reconnect() {},
     setSigner(stats, action: PayloadAction<SignerProvider | null>) {
-      stats.signer = action.payload;
-      return stats;
-    },
-  },
-});
+      stats.signer = action.payload
+      return stats
+    }
+  }
+})
 
-export const actions = walletSlice.actions;
-export const reducer = walletSlice.reducer;
-export type PayloadTypes = PayloadType<typeof actions>;
+export const actions = walletSlice.actions
+export const reducer = walletSlice.reducer
+export type PayloadTypes = PayloadType<typeof actions>

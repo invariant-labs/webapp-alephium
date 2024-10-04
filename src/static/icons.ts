@@ -1,36 +1,36 @@
-import clearIcon from "./svg/clear.svg";
-import mainnetIcon from "./svg/mainnet.svg";
-import devnetIcon from "./svg/devnet.svg";
-import testnetIcon from "./svg/testnet.svg";
-import logoTitle from "./svg/Logo.svg";
-import logoShort from "./svg/LogoShort.svg";
-import arrow from "./svg/arrow.svg";
-import NoCon from "./svg/no-connected.svg";
-import githubIcon from "./svg/githubCircle.svg";
-import telegramIcon from "./svg/telegramCircle.svg";
-import mediumIcon from "./svg/mediumCircle.svg";
-import discordIcon from "./svg/discordCircle.svg";
-import closeIcon from "./svg/closeIcon.svg";
-import activeIcon from "./svg/active.svg";
-import inactiveIcon from "./svg/inactive.svg";
-import allIcon from "./svg/all.svg";
-import docsIcon from "./svg/docsCircle.svg";
-import closeSmallIcon from "./svg/closeSmall.svg";
-import successIcon from "./svg/successIcon.svg";
-import xIcon from "./svg/xCircle.svg";
-import unknownToken from "./svg/unknownToken.svg";
-import newTab from "./svg/newTab.svg";
-import selectToken from "./svg/selectToken.svg";
-import copyAddress from "./svg/copy-address.svg";
-import emptyIcon from "./svg/empty.svg";
-import plusIcon from "./svg/plus.svg";
-import horizontalSwapIcon from "./svg/horizontalSwapArrows.svg";
-import swapListIcon from "./svg/swap-list.svg";
-import a0Logo from "./svg/a0Logo.svg";
-import eclipseLogo from "./svg/eclipseLogo.svg";
-import solanaLogo from "./svg/solanaLogo.svg";
-import varaLogo from "./svg/VaraLogo.svg";
-import alephiumLogo from "./svg/alephiumLogo.svg";
+import clearIcon from './svg/clear.svg'
+import mainnetIcon from './svg/mainnet.svg'
+import devnetIcon from './svg/devnet.svg'
+import testnetIcon from './svg/testnet.svg'
+import logoTitle from './svg/Logo.svg'
+import logoShort from './svg/LogoShort.svg'
+import arrow from './svg/arrow.svg'
+import NoCon from './svg/no-connected.svg'
+import githubIcon from './svg/githubCircle.svg'
+import telegramIcon from './svg/telegramCircle.svg'
+import mediumIcon from './svg/mediumCircle.svg'
+import discordIcon from './svg/discordCircle.svg'
+import closeIcon from './svg/closeIcon.svg'
+import activeIcon from './svg/active.svg'
+import inactiveIcon from './svg/inactive.svg'
+import allIcon from './svg/all.svg'
+import docsIcon from './svg/docsCircle.svg'
+import closeSmallIcon from './svg/closeSmall.svg'
+import successIcon from './svg/successIcon.svg'
+import xIcon from './svg/xCircle.svg'
+import unknownToken from './svg/unknownToken.svg'
+import newTab from './svg/newTab.svg'
+import selectToken from './svg/selectToken.svg'
+import copyAddress from './svg/copy-address.svg'
+import emptyIcon from './svg/empty.svg'
+import plusIcon from './svg/plus.svg'
+import horizontalSwapIcon from './svg/horizontalSwapArrows.svg'
+import swapListIcon from './svg/swap-list.svg'
+import a0Logo from './svg/a0Logo.svg'
+import eclipseLogo from './svg/eclipseLogo.svg'
+import solanaLogo from './svg/solanaLogo.svg'
+import varaLogo from './svg/VaraLogo.svg'
+import alephiumLogo from './svg/alephiumLogo.svg'
 
 const icons: { [key: string]: string } = {
   clear: clearIcon,
@@ -65,7 +65,7 @@ const icons: { [key: string]: string } = {
   Eclipse: eclipseLogo,
   Solana: solanaLogo,
   Vara: varaLogo,
-  Alephium: alephiumLogo,
-};
+  Alephium: alephiumLogo
+}
 
-export default icons;
+export default icons

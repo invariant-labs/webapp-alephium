@@ -1,54 +1,43 @@
-import RoutesModal from "@components/Modals/RoutesModal";
-import SelectTestnetRPC from "@components/Modals/SelectTestnetRPC/SelectTestnetRPC";
-import NavbarButton from "@components/Navbar/Button";
-import DotIcon from "@mui/icons-material/FiberManualRecordRounded";
-import {
-  Box,
-  Button,
-  CardMedia,
-  Grid,
-  IconButton,
-  useMediaQuery,
-} from "@mui/material";
-import icons from "@static/icons";
-import Hamburger from "@static/svg/Hamburger.svg";
-import { theme } from "@static/theme";
-import { RPC, CHAINS } from "@store/consts/static";
-import { blurContent, unblurContent } from "@utils/uiUtils";
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import ChangeWalletButton from "./HeaderButton/ChangeWalletButton";
-import SelectNetworkButton from "./HeaderButton/SelectNetworkButton";
-import SelectRPCButton from "./HeaderButton/SelectRPCButton";
-import useButtonStyles from "./HeaderButton/style";
-import useStyles from "./style";
-import { Network } from "@invariant-labs/alph-sdk";
-import SelectChainButton from "./HeaderButton/SelectChainButton";
-import { ISelectChain } from "@store/consts/types";
-import SelectChain from "@components/Modals/SelectChain/SelectChain";
-import SelectMainnetRPC from "@components/Modals/SelectMainnetRPC/SelectMainnetRPC";
+import RoutesModal from '@components/Modals/RoutesModal'
+import SelectTestnetRPC from '@components/Modals/SelectTestnetRPC/SelectTestnetRPC'
+import NavbarButton from '@components/Navbar/Button'
+import DotIcon from '@mui/icons-material/FiberManualRecordRounded'
+import { Box, Button, CardMedia, Grid, IconButton, useMediaQuery } from '@mui/material'
+import icons from '@static/icons'
+import Hamburger from '@static/svg/Hamburger.svg'
+import { theme } from '@static/theme'
+import { RPC, CHAINS } from '@store/consts/static'
+import { blurContent, unblurContent } from '@utils/uiUtils'
+import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import ChangeWalletButton from './HeaderButton/ChangeWalletButton'
+import SelectNetworkButton from './HeaderButton/SelectNetworkButton'
+import SelectRPCButton from './HeaderButton/SelectRPCButton'
+import useButtonStyles from './HeaderButton/style'
+import useStyles from './style'
+import { Network } from '@invariant-labs/alph-sdk'
+import SelectChainButton from './HeaderButton/SelectChainButton'
+import { ISelectChain } from '@store/consts/types'
+import SelectChain from '@components/Modals/SelectChain/SelectChain'
+import SelectMainnetRPC from '@components/Modals/SelectMainnetRPC/SelectMainnetRPC'
 
 export interface IHeader {
-  address: string;
-  onNetworkSelect: (
-    networkType: Network,
-    rpcAddress: string,
-    rpcName?: string
-  ) => void;
-  onConnectWallet: () => void;
-  walletConnected: boolean;
-  landing: string;
-  typeOfNetwork: Network;
-  rpc: string;
-  onFaucet?: () => void;
-  onDisconnectWallet: () => void;
-  defaultTestnetRPC: string;
-  onCopyAddress: () => void;
-  onChangeWallet: () => void;
-  activeChain: ISelectChain;
-  onChainSelect: (chain: ISelectChain) => void;
-  network: Network;
-  defaultMainnetRPC: string;
+  address: string
+  onNetworkSelect: (networkType: Network, rpcAddress: string, rpcName?: string) => void
+  onConnectWallet: () => void
+  walletConnected: boolean
+  landing: string
+  typeOfNetwork: Network
+  rpc: string
+  onFaucet?: () => void
+  onDisconnectWallet: () => void
+  defaultTestnetRPC: string
+  onCopyAddress: () => void
+  onChangeWallet: () => void
+  activeChain: ISelectChain
+  onChainSelect: (chain: ISelectChain) => void
+  network: Network
+  defaultMainnetRPC: string
 }
 
 export const Header: React.FC<IHeader> = ({
@@ -67,89 +56,76 @@ export const Header: React.FC<IHeader> = ({
   activeChain,
   onChainSelect,
   network,
-  defaultMainnetRPC,
+  defaultMainnetRPC
 }) => {
-  const { classes } = useStyles();
-  const buttonStyles = useButtonStyles();
-  const navigate = useNavigate();
+  const { classes } = useStyles()
+  const buttonStyles = useButtonStyles()
+  const navigate = useNavigate()
 
-  const isMdDown = useMediaQuery(theme.breakpoints.down("md"));
+  const isMdDown = useMediaQuery(theme.breakpoints.down('md'))
 
-  const routes = ["exchange", "liquidity", "statistics"];
+  const routes = ['exchange', 'liquidity', 'statistics']
 
   const otherRoutesToHighlight: Record<string, RegExp[]> = {
     liquidity: [/^newPosition\/*/, /^position\/*/],
-    exchange: [/^exchange\/*/],
-  };
+    exchange: [/^exchange\/*/]
+  }
 
-  const [activePath, setActive] = useState("exchange");
+  const [activePath, setActive] = useState('exchange')
 
-  const [routesModalOpen, setRoutesModalOpen] = useState(false);
-  const [testnetRpcsOpen, setTestnetRpcsOpen] = useState(false);
-  const [chainSelectOpen, setChainSelectOpen] = useState(false);
-  const [routesModalAnchor, setRoutesModalAnchor] =
-    useState<HTMLButtonElement | null>(null);
+  const [routesModalOpen, setRoutesModalOpen] = useState(false)
+  const [testnetRpcsOpen, setTestnetRpcsOpen] = useState(false)
+  const [chainSelectOpen, setChainSelectOpen] = useState(false)
+  const [routesModalAnchor, setRoutesModalAnchor] = useState<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    setActive(landing);
-  }, [landing]);
+    setActive(landing)
+  }, [landing])
 
   const testnetRPCs = [
     {
       networkType: Network.Testnet,
       rpc: RPC.TEST,
-      rpcName: "Alephium Testnet",
-    },
-  ];
+      rpcName: 'Alephium Testnet'
+    }
+  ]
 
   const mainnetRPCs = [
     {
       networkType: Network.Mainnet,
       rpc: RPC.MAIN,
-      rpcName: "Alephium Mainnet",
-    },
-  ];
+      rpcName: 'Alephium Mainnet'
+    }
+  ]
 
   return (
     <Grid container>
-      <Grid
-        container
-        className={classes.root}
-        direction="row"
-        alignItems="center"
-        wrap="nowrap"
-      >
+      <Grid container className={classes.root} direction='row' alignItems='center' wrap='nowrap'>
         <Grid
           container
           item
           className={classes.leftSide}
-          justifyContent="flex-start"
-          sx={{ display: { xs: "none", md: "block" } }}
-        >
+          justifyContent='flex-start'
+          sx={{ display: { xs: 'none', md: 'block' } }}>
           <CardMedia
             className={classes.logo}
             image={icons.LogoTitle}
             onClick={() => {
-              if (!activePath.startsWith("exchange")) {
-                navigate("/exchange");
+              if (!activePath.startsWith('exchange')) {
+                navigate('/exchange')
               }
             }}
           />
         </Grid>
-        <Box sx={{ display: { xs: "block", md: "none" } }}>
-          <Grid
-            container
-            item
-            className={classes.leftSide}
-            justifyContent="flex-start"
-          >
+        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+          <Grid container item className={classes.leftSide} justifyContent='flex-start'>
             <Grid container>
               <CardMedia
                 className={classes.logoShort}
                 image={icons.LogoShort}
                 onClick={() => {
-                  if (!activePath.startsWith("exchange")) {
-                    navigate("/exchange");
+                  if (!activePath.startsWith('exchange')) {
+                    navigate('/exchange')
                   }
                 }}
               />
@@ -160,58 +136,49 @@ export const Header: React.FC<IHeader> = ({
           container
           item
           className={classes.routers}
-          wrap="nowrap"
-          sx={{ display: { xs: "none", lg: "block" } }}
-        >
-          {routes.map((path) => (
+          wrap='nowrap'
+          sx={{ display: { xs: 'none', lg: 'block' } }}>
+          {routes.map(path => (
             <Link key={`path-${path}`} to={`/${path}`} className={classes.link}>
               <NavbarButton
                 name={path}
-                onClick={(e) => {
-                  if (
-                    path === "exchange" &&
-                    activePath.startsWith("exchange")
-                  ) {
-                    e.preventDefault();
+                onClick={e => {
+                  if (path === 'exchange' && activePath.startsWith('exchange')) {
+                    e.preventDefault()
                   }
 
-                  setActive(path);
+                  setActive(path)
                 }}
                 active={
                   path === activePath ||
                   (!!otherRoutesToHighlight[path] &&
-                    otherRoutesToHighlight[path].some((pathRegex) =>
-                      pathRegex.test(activePath)
-                    ))
+                    otherRoutesToHighlight[path].some(pathRegex => pathRegex.test(activePath)))
                 }
               />
             </Link>
           ))}
         </Grid>
 
-        <Grid container item className={classes.buttons} wrap="nowrap">
+        <Grid container item className={classes.buttons} wrap='nowrap'>
           <Grid container className={classes.leftButtons}>
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <Button
                 className={buttonStyles.classes.headerButton}
-                variant="contained"
-                sx={{ "& .MuiButton-label": buttonStyles.classes.label }}
-                onClick={onFaucet}
-              >
+                variant='contained'
+                sx={{ '& .MuiButton-label': buttonStyles.classes.label }}
+                onClick={onFaucet}>
                 Faucet
               </Button>
             </Box>
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <SelectRPCButton
                 rpc={rpc}
-                networks={
-                  network === Network.Testnet ? testnetRPCs : mainnetRPCs
-                }
+                networks={network === Network.Testnet ? testnetRPCs : mainnetRPCs}
                 onSelect={onNetworkSelect}
                 network={network}
               />
             </Box>
-            <Box sx={{ display: { xs: "none", md: "block" } }}>
+            <Box sx={{ display: { xs: 'none', md: 'block' } }}>
               <SelectChainButton
                 activeChain={activeChain}
                 chains={CHAINS}
@@ -225,16 +192,14 @@ export const Header: React.FC<IHeader> = ({
                   networkType: Network.Testnet,
                   rpc: defaultTestnetRPC,
                   rpcName:
-                    testnetRPCs.find((data) => data.rpc === defaultTestnetRPC)
-                      ?.rpcName ?? "Custom",
+                    testnetRPCs.find(data => data.rpc === defaultTestnetRPC)?.rpcName ?? 'Custom'
                 },
                 {
                   networkType: Network.Mainnet,
                   rpc: defaultMainnetRPC,
                   rpcName:
-                    mainnetRPCs.find((data) => data.rpc === defaultMainnetRPC)
-                      ?.rpcName ?? "Custom",
-                },
+                    mainnetRPCs.find(data => data.rpc === defaultMainnetRPC)?.rpcName ?? 'Custom'
+                }
               ]}
               onSelect={onNetworkSelect}
             />
@@ -246,36 +211,30 @@ export const Header: React.FC<IHeader> = ({
                     !isMdDown
                       ? address
                           .toString()
-                          .slice(
-                            address.toString().length - 4,
-                            address.toString().length
-                          )
-                      : ""
+                          .slice(address.toString().length - 4, address.toString().length)
+                      : ''
                   }`
-                : "Connect wallet"
+                : 'Connect wallet'
             }
             onConnect={onConnectWallet}
             connected={walletConnected}
             onDisconnect={onDisconnectWallet}
             startIcon={
-              walletConnected ? (
-                <DotIcon className={classes.connectedWalletIcon} />
-              ) : undefined
+              walletConnected ? <DotIcon className={classes.connectedWalletIcon} /> : undefined
             }
             onCopyAddress={onCopyAddress}
             onChangeWallet={onChangeWallet}
           />
         </Grid>
 
-        <Grid sx={{ display: { xs: "block", lg: "none" } }}>
+        <Grid sx={{ display: { xs: 'block', lg: 'none' } }}>
           <IconButton
             className={classes.menuButton}
             onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-              setRoutesModalAnchor(event.currentTarget);
-              setRoutesModalOpen(true);
-              blurContent();
-            }}
-          >
+              setRoutesModalAnchor(event.currentTarget)
+              setRoutesModalOpen(true)
+              blurContent()
+            }}>
             <CardMedia className={classes.menu} image={Hamburger} />
           </IconButton>
           <RoutesModal
@@ -284,28 +243,28 @@ export const Header: React.FC<IHeader> = ({
             open={routesModalOpen}
             current={activePath}
             onSelect={(selected: string) => {
-              setActive(selected);
-              setRoutesModalOpen(false);
-              unblurContent();
+              setActive(selected)
+              setRoutesModalOpen(false)
+              unblurContent()
             }}
             handleClose={() => {
-              setRoutesModalOpen(false);
-              unblurContent();
+              setRoutesModalOpen(false)
+              unblurContent()
             }}
             onFaucet={isMdDown ? onFaucet : undefined}
             onRPC={
               isMdDown
                 ? () => {
-                    setRoutesModalOpen(false);
-                    setTestnetRpcsOpen(true);
+                    setRoutesModalOpen(false)
+                    setTestnetRpcsOpen(true)
                   }
                 : undefined
             }
             onChainSelect={
               isMdDown
                 ? () => {
-                    setRoutesModalOpen(false);
-                    setChainSelectOpen(true);
+                    setRoutesModalOpen(false)
+                    setChainSelectOpen(true)
                   }
                 : undefined
             }
@@ -317,8 +276,8 @@ export const Header: React.FC<IHeader> = ({
               anchorEl={routesModalAnchor}
               onSelect={onNetworkSelect}
               handleClose={() => {
-                setTestnetRpcsOpen(false);
-                unblurContent();
+                setTestnetRpcsOpen(false)
+                unblurContent()
               }}
               activeRPC={rpc}
             />
@@ -329,8 +288,8 @@ export const Header: React.FC<IHeader> = ({
               anchorEl={routesModalAnchor}
               onSelect={onNetworkSelect}
               handleClose={() => {
-                setTestnetRpcsOpen(false);
-                unblurContent();
+                setTestnetRpcsOpen(false)
+                unblurContent()
               }}
               activeRPC={rpc}
             />
@@ -341,14 +300,14 @@ export const Header: React.FC<IHeader> = ({
             anchorEl={routesModalAnchor}
             onSelect={onChainSelect}
             handleClose={() => {
-              setChainSelectOpen(false);
-              unblurContent();
+              setChainSelectOpen(false)
+              unblurContent()
             }}
             activeChain={activeChain}
           />
         </Grid>
       </Grid>
     </Grid>
-  );
-};
-export default Header;
+  )
+}
+export default Header
