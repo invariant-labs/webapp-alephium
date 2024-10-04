@@ -26,7 +26,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { IPositionItem } from '@components/PositionsList/PositionItem/PositionItem'
-import { useConnect } from '@alephium/web3-react'
+import { actions as walletActions } from '@store/reducers/wallet'
 
 export const WrappedPositionsList: React.FC = () => {
   const walletAddress = useSelector(address)
@@ -37,7 +37,6 @@ export const WrappedPositionsList: React.FC = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { loadedPages, length } = useSelector(positionsList)
-  const { connect } = useConnect()
 
   const [value, setValue] = useState<string>('')
 
@@ -171,7 +170,7 @@ export const WrappedPositionsList: React.FC = () => {
       itemsPerPage={POSITIONS_PER_PAGE}
       noConnectedBlockerProps={{
         onConnect: async () => {
-          await connect()
+          dispatch(walletActions.setShowConnectModal(true))
         },
         title: 'Start exploring liquidity pools right now!',
         descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!'

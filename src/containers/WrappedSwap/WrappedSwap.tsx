@@ -50,7 +50,7 @@ export const WrappedSwap = ({ initialTokenFrom, initialTokenTo }: Props) => {
   const [progress, setProgress] = useState<ProgressState>('none')
   const [tokenFrom, setTokenFrom] = useState<string | null>(null)
   const [tokenTo, setTokenTo] = useState<string | null>(null)
-  const { connect, disconnect } = useConnect()
+  const { disconnect } = useConnect()
 
   useEffect(() => {
     let timeoutId1: NodeJS.Timeout
@@ -329,7 +329,7 @@ export const WrappedSwap = ({ initialTokenFrom, initialTokenTo }: Props) => {
         }
       }}
       onConnectWallet={async () => {
-        await connect()
+        dispatch(walletActions.setShowConnectModal(true))
       }}
       onDisconnectWallet={async () => {
         await disconnect()
