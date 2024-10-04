@@ -4,14 +4,19 @@ import { RPC, CHAINS } from "@store/consts/static";
 import { actions } from "@store/reducers/connection";
 import { Status, actions as walletActions } from "@store/reducers/wallet";
 import { networkType, rpcAddress } from "@store/selectors/connection";
-import { address, status } from "@store/selectors/wallet";
+import { address, showConnectModal, status } from "@store/selectors/wallet";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { actions as snackbarsActions } from "@store/reducers/snackbars";
 import { Chain } from "@store/consts/types";
-import { useConnect, useWallet } from "@alephium/web3-react";
+import {
+  useConnect,
+  useConnectSettingContext,
+  useWallet,
+} from "@alephium/web3-react";
 import { web3 } from "@alephium/web3";
+import { blurContent, unblurContent } from "@utils/uiUtils";
 
 export const HeaderWrapper: React.FC = () => {
   const dispatch = useDispatch();
@@ -24,6 +29,9 @@ export const HeaderWrapper: React.FC = () => {
   const { connect, disconnect } = useConnect();
   const { signer, account } = useWallet();
   const [wasEagerConnect, setWasEagerConnect] = useState(true);
+  const connectModalShown = useSelector(showConnectModal);
+  const context = useConnectSettingContext();
+  const [connectClicked, setConnectClicked] = useState(false);
 
   useEffect(() => {
     if (account && signer) {
@@ -33,6 +41,7 @@ export const HeaderWrapper: React.FC = () => {
           signer,
         })
       );
+      setShowConnectModal(false);
     }
   }, [account, signer]);
 
@@ -75,6 +84,29 @@ export const HeaderWrapper: React.FC = () => {
   const activeChain =
     CHAINS.find((chain) => chain.name === Chain.Alephium) ?? CHAINS[0];
 
+  const setShowConnectModal = (show: boolean) => {
+    dispatch(walletActions.setShowConnectModal(show));
+  };
+
+  useEffect(() => {
+    const run = async () => {
+      if (connectClicked) {
+        setConnectClicked(false);
+        await connect();
+      }
+    };
+
+    run();
+  }, [connectClicked]);
+
+  useEffect(() => {
+    if (connectModalShown) {
+      blurContent();
+    } else {
+      unblurContent();
+    }
+  }, [connectModalShown]);
+
   return (
     <Header
       address={walletAddress}
@@ -97,9 +129,10 @@ export const HeaderWrapper: React.FC = () => {
           dispatch(actions.setNetwork(network));
         }
       }}
-      onConnectWallet={async () => {
+      onConnectWallet={async (id) => {
         setWasEagerConnect(false);
-        await connect();
+        context.setConnectorId(id);
+        setConnectClicked(true);
       }}
       landing={location.pathname.substring(1)}
       walletConnected={walletStatus === Status.Initialized}
@@ -123,8 +156,9 @@ export const HeaderWrapper: React.FC = () => {
           })
         );
       }}
-      onChangeWallet={() => {
-        dispatch(walletActions.reconnect());
+      onChangeWallet={async () => {
+        disconnect();
+        setShowConnectModal(true);
       }}
       activeChain={activeChain}
       onChainSelect={(chain) => {
@@ -134,6 +168,8 @@ export const HeaderWrapper: React.FC = () => {
       }}
       network={currentNetwork}
       defaultMainnetRPC={defaultMainnetRPC}
+      connectModalShown={connectModalShown}
+      setShowConnectModal={setShowConnectModal}
     />
   );
 };

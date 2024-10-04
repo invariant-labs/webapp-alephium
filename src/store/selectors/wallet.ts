@@ -22,6 +22,7 @@ export const {
   status,
   balanceLoading,
   signer,
+  showConnectModal,
 } = keySelectors(store, [
   "address",
   "balance",
@@ -29,6 +30,7 @@ export const {
   "status",
   "balanceLoading",
   "signer",
+  "showConnectModal",
 ]);
 
 export const tokenBalance = (tokenAddress: string) =>
@@ -166,5 +168,6 @@ export const alephiumWalletSelectors = {
   status,
   balanceLoading,
   signer,
+  showConnectModal,
 };
 export default alephiumWalletSelectors;
