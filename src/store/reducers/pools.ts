@@ -9,9 +9,9 @@ import {
   PoolKey,
   Tick,
   Tickmap,
-  USDC_ID,
-} from "@invariant-labs/alph-sdk";
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+  USDC_ID
+} from '@invariant-labs/alph-sdk'
+import { PayloadAction, createSlice } from '@reduxjs/toolkit'
 import {
   MAINNET_ALPH,
   MAINNET_BTC,
@@ -20,74 +20,73 @@ import {
   TESTNET_ALPH,
   TESTNET_BTC,
   TESTNET_ETH,
-  TESTNET_USDC,
-} from "@store/consts/static";
-import { PayloadType, Token } from "@store/consts/types";
-import { poolKeyToString } from "@utils/utils";
+  TESTNET_USDC
+} from '@store/consts/static'
+import { PayloadType, Token } from '@store/consts/types'
+import { poolKeyToString } from '@utils/utils'
 
-import * as R from "remeda";
+import * as R from 'remeda'
 
 export interface PoolWithPoolKey extends Pool {
-  poolKey: PoolKey;
+  poolKey: PoolKey
 }
 
 export interface IndexedFeeTier {
-  tier: FeeTier;
-  primaryIndex: number;
+  tier: FeeTier
+  primaryIndex: number
 }
 
 export interface IPoolsStore {
-  tokens: Record<string, Token>;
-  pools: { [key in string]: PoolWithPoolKey };
-  poolKeys: { [key in string]: PoolKey };
-  poolTicks: { [key in string]: LiquidityTick[] };
-  nearestPoolTicksForPair: { [key in string]: Tick[] };
-  isLoadingLatestPoolsForTransaction: boolean;
-  isLoadingTicksAndTickMaps: boolean;
-  isLoadingPoolKeys: boolean;
-  isLoadingTokens: boolean;
-  isLoadingTokensError: boolean;
-  tickMaps: { [key in string]: string };
+  tokens: Record<string, Token>
+  pools: { [key in string]: PoolWithPoolKey }
+  poolKeys: { [key in string]: PoolKey }
+  poolTicks: { [key in string]: LiquidityTick[] }
+  nearestPoolTicksForPair: { [key in string]: Tick[] }
+  isLoadingLatestPoolsForTransaction: boolean
+  isLoadingTicksAndTickMaps: boolean
+  isLoadingPoolKeys: boolean
+  isLoadingTokens: boolean
+  isLoadingTokensError: boolean
+  tickMaps: { [key in string]: string }
 }
 
 export interface UpdatePool {
-  poolKey: PoolKey;
-  poolStructure: Pool;
+  poolKey: PoolKey
+  poolStructure: Pool
 }
 
 export interface updateTickMaps {
-  poolKey: PoolKey;
-  tickMapStructure: Tickmap;
+  poolKey: PoolKey
+  tickMapStructure: Tickmap
 }
 
 export interface UpdateTick {
-  poolKey: PoolKey;
-  tickStructure: LiquidityTick[];
+  poolKey: PoolKey
+  tickStructure: LiquidityTick[]
 }
 export interface DeleteTick {
-  address: string;
-  index: number;
+  address: string
+  index: number
 }
 export interface UpdateTicks extends DeleteTick {
-  tick: Tick;
+  tick: Tick
 }
 
 export interface UpdateTickmap {
-  address: string;
-  bitmap: number[];
+  address: string
+  bitmap: number[]
 }
 
 export interface FetchTicksAndTickMaps {
-  tokenFrom: string;
-  tokenTo: string;
-  allPools: PoolWithPoolKey[];
-  poolKey?: PoolKey;
+  tokenFrom: string
+  tokenTo: string
+  allPools: PoolWithPoolKey[]
+  poolKey?: PoolKey
 }
 
 const network =
-  Network[
-    localStorage.getItem("INVARIANT_NETWORK_Alephium") as keyof typeof Network
-  ] ?? Network.Testnet;
+  Network[localStorage.getItem('INVARIANT_NETWORK_Alephium') as keyof typeof Network] ??
+  Network.Testnet
 
 export const defaultState: IPoolsStore = {
   tokens:
@@ -96,13 +95,13 @@ export const defaultState: IPoolsStore = {
           [BTC_ID[Network.Mainnet]]: MAINNET_BTC,
           [ETH_ID[Network.Mainnet]]: MAINNET_ETH,
           [USDC_ID[Network.Mainnet]]: MAINNET_USDC,
-          [ALPH_TOKEN_ID]: MAINNET_ALPH,
+          [ALPH_TOKEN_ID]: MAINNET_ALPH
         }
       : {
           [BTC_ID[Network.Testnet]]: TESTNET_BTC,
           [ETH_ID[Network.Testnet]]: TESTNET_ETH,
           [USDC_ID[Network.Testnet]]: TESTNET_USDC,
-          [ALPH_TOKEN_ID]: TESTNET_ALPH,
+          [ALPH_TOKEN_ID]: TESTNET_ALPH
         },
   pools: {},
   poolKeys: {},
@@ -113,30 +112,30 @@ export const defaultState: IPoolsStore = {
   isLoadingPoolKeys: true,
   isLoadingTokens: true,
   isLoadingTokensError: false,
-  tickMaps: {},
-};
+  tickMaps: {}
+}
 
 export interface PairTokens {
-  first: string;
-  second: string;
+  first: string
+  second: string
 }
 
 export enum ListType {
   POSITIONS,
-  FARMS,
+  FARMS
 }
 
 export interface ListPoolsRequest {
-  poolKeys: PoolKey[];
-  listType: ListType;
+  poolKeys: PoolKey[]
+  listType: ListType
 }
 
 export interface ListPoolsResponse {
-  data: PoolWithPoolKey[];
-  listType: ListType;
+  data: PoolWithPoolKey[]
+  listType: ListType
 }
 
-export const poolsSliceName = "pools";
+export const poolsSliceName = 'pools'
 const poolsSlice = createSlice({
   name: poolsSliceName,
   initialState: defaultState,
@@ -144,105 +143,105 @@ const poolsSlice = createSlice({
     addTokens(state, action: PayloadAction<Record<string, Token>>) {
       state.tokens = {
         ...state.tokens,
-        ...action.payload,
-      };
-      state.isLoadingTokens = false;
-      return state;
+        ...action.payload
+      }
+      state.isLoadingTokens = false
+      return state
     },
     updateTokenBalances(state, action: PayloadAction<[string, bigint][]>) {
-      action.payload.map((pair) => {
+      action.payload.map(pair => {
         state.tokens[pair[0]] = {
           ...state.tokens[pair[0]],
-          balance: pair[1],
-        };
-      });
-      return state;
+          balance: pair[1]
+        }
+      })
+      return state
     },
     setPoolKeys(state, action: PayloadAction<PoolKey[]>) {
-      state.isLoadingPoolKeys = false;
-      action.payload.map((poolKey) => {
-        const keyStringified = poolKeyToString(poolKey);
-        state.poolKeys[keyStringified] = poolKey;
-      });
-      return state;
+      state.isLoadingPoolKeys = false
+      action.payload.map(poolKey => {
+        const keyStringified = poolKeyToString(poolKey)
+        state.poolKeys[keyStringified] = poolKey
+      })
+      return state
     },
     getPoolKeys(state) {
-      state.isLoadingPoolKeys = true;
-      return state;
+      state.isLoadingPoolKeys = true
+      return state
     },
     addPool(state, action: PayloadAction<PoolWithPoolKey | undefined>) {
       if (action.payload) {
-        const { poolKey } = action.payload;
-        const keyStringified = poolKeyToString(poolKey);
+        const { poolKey } = action.payload
+        const keyStringified = poolKeyToString(poolKey)
 
-        state.pools[keyStringified] = action.payload;
+        state.pools[keyStringified] = action.payload
       }
 
-      state.isLoadingLatestPoolsForTransaction = false;
-      return state;
+      state.isLoadingLatestPoolsForTransaction = false
+      return state
     },
     getPoolData(state, _action: PayloadAction<PoolKey>) {
-      state.isLoadingLatestPoolsForTransaction = true;
-      return state;
+      state.isLoadingLatestPoolsForTransaction = true
+      return state
     },
     setTickMaps(state, action: PayloadAction<updateTickMaps>) {
       state.tickMaps[poolKeyToString(action.payload.poolKey)] = JSON.stringify(
-        Array.from(action.payload.tickMapStructure.entries()).map(
-          ([key, value]) => [key.toString(), value.toString()]
-        )
-      );
-      return state;
+        Array.from(action.payload.tickMapStructure.entries()).map(([key, value]) => [
+          key.toString(),
+          value.toString()
+        ])
+      )
+      return state
     },
     stopIsLoadingTicksAndTickMaps(state) {
-      state.isLoadingTicksAndTickMaps = false;
+      state.isLoadingTicksAndTickMaps = false
     },
     setTicks(state, action: PayloadAction<UpdateTick>) {
-      state.poolTicks[poolKeyToString(action.payload.poolKey)] =
-        action.payload.tickStructure;
-      return state;
+      state.poolTicks[poolKeyToString(action.payload.poolKey)] = action.payload.tickStructure
+      return state
     },
     addPools(state, action: PayloadAction<PoolWithPoolKey[]>) {
       const newData = action.payload.reduce(
         (acc, pool) => ({
           ...acc,
-          [poolKeyToString(pool.poolKey)]: pool,
+          [poolKeyToString(pool.poolKey)]: pool
         }),
         {}
-      );
-      state.pools = R.merge(state.pools, newData);
-      state.isLoadingLatestPoolsForTransaction = false;
-      return state;
+      )
+      state.pools = R.merge(state.pools, newData)
+      state.isLoadingLatestPoolsForTransaction = false
+      return state
     },
     addPoolsForList(state, action: PayloadAction<ListPoolsResponse>) {
       const newData = action.payload.data.reduce(
         (acc, pool) => ({
           ...acc,
-          [poolKeyToString(pool.poolKey)]: pool,
+          [poolKeyToString(pool.poolKey)]: pool
         }),
         {}
-      );
-      state.pools = R.merge(state.pools, newData);
-      return state;
+      )
+      state.pools = R.merge(state.pools, newData)
+      return state
     },
     getAllPoolsForPairData(state, _action: PayloadAction<PairTokens>) {
-      state.isLoadingLatestPoolsForTransaction = true;
-      return state;
+      state.isLoadingLatestPoolsForTransaction = true
+      return state
     },
     getTicksAndTickMaps(state, _action: PayloadAction<FetchTicksAndTickMaps>) {
-      state.isLoadingTicksAndTickMaps = true;
-      return state;
+      state.isLoadingTicksAndTickMaps = true
+      return state
     },
     getTokens(state, _action: PayloadAction<string[]>) {
-      state.isLoadingTokens = true;
-      return state;
+      state.isLoadingTokens = true
+      return state
     },
     setTokensError(state, action: PayloadAction<boolean>) {
-      state.isLoadingTokensError = action.payload;
-      return state;
-    },
-  },
-});
+      state.isLoadingTokensError = action.payload
+      return state
+    }
+  }
+})
 
-export const actions = poolsSlice.actions;
-export const reducer = poolsSlice.reducer;
-export type PayloadTypes = PayloadType<typeof actions>;
+export const actions = poolsSlice.actions
+export const reducer = poolsSlice.reducer
+export type PayloadTypes = PayloadType<typeof actions>

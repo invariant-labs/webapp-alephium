@@ -1,14 +1,14 @@
-import { makeStyles } from "tss-react/mui";
+import { makeStyles } from 'tss-react/mui'
 
 export const useStyles = makeStyles()(() => ({
   root: {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
+    minHeight: '100vh',
+    display: 'flex',
+    flexDirection: 'column'
   },
   body: {
-    flex: 1,
-  },
-}));
+    flex: 1
+  }
+}))
 
-export default useStyles;
+export default useStyles

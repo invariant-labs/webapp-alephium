@@ -1,55 +1,50 @@
-import MarketIdLabel from "@components/NewPosition/MarketIdLabel/MarketIdLabel";
-import SinglePositionInfo from "@components/PositionDetails/SinglePositionInfo/SinglePositionInfo";
-import SinglePositionPlot from "@components/PositionDetails/SinglePositionPlot/SinglePositionPlot";
-import { TickPlotPositionData } from "@components/PriceRangePlot/PriceRangePlot";
-import Refresher from "@components/Refresher/Refresher";
-import { Box, Button, Grid, Hidden, Typography } from "@mui/material";
-import backIcon from "@static/svg/back-arrow.svg";
-import { REFRESHER_INTERVAL } from "@store/consts/static";
-import {
-  addressToTicker,
-  initialXtoY,
-  parseFeeToPathFee,
-  printBigint,
-} from "@utils/utils";
-import { PlotTickData } from "@store/reducers/positions";
-import { VariantType } from "notistack";
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { ILiquidityToken } from "./SinglePositionInfo/consts";
-import { useStyles } from "./style";
-import { TokenPriceData } from "@store/consts/types";
-import { TooltipHover } from "@components/TooltipHover/TooltipHover";
-import { Network, PERCENTAGE_SCALE } from "@invariant-labs/alph-sdk";
+import MarketIdLabel from '@components/NewPosition/MarketIdLabel/MarketIdLabel'
+import SinglePositionInfo from '@components/PositionDetails/SinglePositionInfo/SinglePositionInfo'
+import SinglePositionPlot from '@components/PositionDetails/SinglePositionPlot/SinglePositionPlot'
+import { TickPlotPositionData } from '@components/PriceRangePlot/PriceRangePlot'
+import Refresher from '@components/Refresher/Refresher'
+import { Box, Button, Grid, Hidden, Typography } from '@mui/material'
+import backIcon from '@static/svg/back-arrow.svg'
+import { REFRESHER_INTERVAL } from '@store/consts/static'
+import { addressToTicker, initialXtoY, parseFeeToPathFee, printBigint } from '@utils/utils'
+import { PlotTickData } from '@store/reducers/positions'
+import { VariantType } from 'notistack'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ILiquidityToken } from './SinglePositionInfo/consts'
+import { useStyles } from './style'
+import { TokenPriceData } from '@store/consts/types'
+import { TooltipHover } from '@components/TooltipHover/TooltipHover'
+import { Network, PERCENTAGE_SCALE } from '@invariant-labs/alph-sdk'
 
 interface IProps {
-  tokenXAddress: string;
-  tokenYAddress: string;
-  poolAddress: string;
-  copyPoolAddressHandler: (message: string, variant: VariantType) => void;
-  detailsData: PlotTickData[];
-  leftRange: TickPlotPositionData;
-  rightRange: TickPlotPositionData;
-  midPrice: TickPlotPositionData;
-  currentPrice: number;
-  tokenX: ILiquidityToken;
-  tokenY: ILiquidityToken;
-  tokenXPriceData?: TokenPriceData;
-  tokenYPriceData?: TokenPriceData;
-  onClickClaimFee: () => void;
-  closePosition: (claimFarmRewards?: boolean) => void;
-  ticksLoading: boolean;
-  tickSpacing: bigint;
-  fee: bigint;
-  min: number;
-  max: number;
-  showFeesLoader?: boolean;
-  hasTicksError?: boolean;
-  reloadHandler: () => void;
-  userHasStakes?: boolean;
-  onRefresh: () => void;
-  isBalanceLoading: boolean;
-  network: Network;
+  tokenXAddress: string
+  tokenYAddress: string
+  poolAddress: string
+  copyPoolAddressHandler: (message: string, variant: VariantType) => void
+  detailsData: PlotTickData[]
+  leftRange: TickPlotPositionData
+  rightRange: TickPlotPositionData
+  midPrice: TickPlotPositionData
+  currentPrice: number
+  tokenX: ILiquidityToken
+  tokenY: ILiquidityToken
+  tokenXPriceData?: TokenPriceData
+  tokenYPriceData?: TokenPriceData
+  onClickClaimFee: () => void
+  closePosition: (claimFarmRewards?: boolean) => void
+  ticksLoading: boolean
+  tickSpacing: bigint
+  fee: bigint
+  min: number
+  max: number
+  showFeesLoader?: boolean
+  hasTicksError?: boolean
+  reloadHandler: () => void
+  userHasStakes?: boolean
+  onRefresh: () => void
+  isBalanceLoading: boolean
+  network: Network
 }
 
 const PositionDetails: React.FC<IProps> = ({
@@ -79,53 +74,43 @@ const PositionDetails: React.FC<IProps> = ({
   userHasStakes = false,
   onRefresh,
   isBalanceLoading,
-  network,
+  network
 }) => {
-  const { classes } = useStyles();
+  const { classes } = useStyles()
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const [xToY, setXToY] = useState<boolean>(
     initialXtoY(tokenXAddress.toString(), tokenYAddress.toString())
-  );
-  const [refresherTime, setRefresherTime] =
-    useState<number>(REFRESHER_INTERVAL);
+  )
+  const [refresherTime, setRefresherTime] = useState<number>(REFRESHER_INTERVAL)
 
-  const isActive = midPrice.x >= min && midPrice.x <= max;
+  const isActive = midPrice.x >= min && midPrice.x <= max
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (refresherTime > 0) {
-        setRefresherTime(refresherTime - 1);
+        setRefresherTime(refresherTime - 1)
       } else {
-        onRefresh();
-        setRefresherTime(REFRESHER_INTERVAL);
+        onRefresh()
+        setRefresherTime(REFRESHER_INTERVAL)
       }
-    }, 1000);
+    }, 1000)
 
-    return () => clearTimeout(timeout);
-  }, [refresherTime]);
+    return () => clearTimeout(timeout)
+  }, [refresherTime])
 
   return (
-    <Grid container className={classes.wrapperContainer} wrap="nowrap">
-      <Grid
-        className={classes.positionDetails}
-        container
-        item
-        direction="column"
-      >
+    <Grid container className={classes.wrapperContainer} wrap='nowrap'>
+      <Grid className={classes.positionDetails} container item direction='column'>
         <Grid className={classes.backContainer} container>
-          <Link to="/liquidity" style={{ textDecoration: "none" }}>
-            <Grid className={classes.back} container item alignItems="center">
-              <img className={classes.backIcon} src={backIcon} alt="Back" />
+          <Link to='/liquidity' style={{ textDecoration: 'none' }}>
+            <Grid className={classes.back} container item alignItems='center'>
+              <img className={classes.backIcon} src={backIcon} alt='Back' />
               <Typography className={classes.backText}>Positions</Typography>
             </Grid>
           </Link>
-          <Grid
-            container
-            width="auto"
-            className={classes.marketIdWithRefresher}
-          >
+          <Grid container width='auto' className={classes.marketIdWithRefresher}>
             <Hidden mdUp>
               <MarketIdLabel
                 marketId={poolAddress.toString()}
@@ -133,13 +118,13 @@ const PositionDetails: React.FC<IProps> = ({
                 copyPoolAddressHandler={copyPoolAddressHandler}
                 style={{ paddingRight: 10 }}
               />
-              <TooltipHover text="Refresh">
+              <TooltipHover text='Refresh'>
                 <Refresher
                   currentIndex={refresherTime}
                   maxIndex={REFRESHER_INTERVAL}
                   onClick={() => {
-                    onRefresh();
-                    setRefresherTime(REFRESHER_INTERVAL);
+                    onRefresh()
+                    setRefresherTime(REFRESHER_INTERVAL)
                   }}
                 />
               </TooltipHover>
@@ -167,52 +152,43 @@ const PositionDetails: React.FC<IProps> = ({
       <Grid
         container
         item
-        direction="column"
-        alignItems="flex-end"
+        direction='column'
+        alignItems='flex-end'
         className={classes.right}
-        wrap="nowrap"
-      >
+        wrap='nowrap'>
         <Grid className={classes.positionPlotWrapper}>
           <Grid
             container
             item
-            direction="row"
-            alignItems="center"
-            flexDirection="row-reverse"
+            direction='row'
+            alignItems='center'
+            flexDirection='row-reverse'
             className={classes.rightHeaderWrapper}
-            mt="22px"
-            wrap="nowrap"
-          >
-            <Box sx={{ display: { xs: "none", sm: "block" } }}>
+            mt='22px'
+            wrap='nowrap'>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <Button
                 className={classes.button}
-                variant="contained"
+                variant='contained'
                 onClick={() => {
-                  const parsedFee = parseFeeToPathFee(fee);
-                  const address1 = addressToTicker(
-                    network,
-                    tokenXAddress.toString()
-                  );
-                  const address2 = addressToTicker(
-                    network,
-                    tokenYAddress.toString()
-                  );
+                  const parsedFee = parseFeeToPathFee(fee)
+                  const address1 = addressToTicker(network, tokenXAddress.toString())
+                  const address2 = addressToTicker(network, tokenYAddress.toString())
 
-                  navigate(`/newPosition/${address1}/${address2}/${parsedFee}`);
-                }}
-              >
+                  navigate(`/newPosition/${address1}/${address2}/${parsedFee}`)
+                }}>
                 <span className={classes.buttonText}>+ Add Position</span>
               </Button>
             </Box>
             <Hidden mdDown>
-              <TooltipHover text="Refresh">
-                <Grid mr={2} ml="auto" display="flex" justifyContent="center">
+              <TooltipHover text='Refresh'>
+                <Grid mr={2} ml='auto' display='flex' justifyContent='center'>
                   <Refresher
                     currentIndex={refresherTime}
                     maxIndex={REFRESHER_INTERVAL}
                     onClick={() => {
-                      onRefresh();
-                      setRefresherTime(REFRESHER_INTERVAL);
+                      onRefresh()
+                      setRefresherTime(REFRESHER_INTERVAL)
                     }}
                   />
                 </Grid>
@@ -221,7 +197,7 @@ const PositionDetails: React.FC<IProps> = ({
                 marketId={poolAddress.toString()}
                 displayLength={9}
                 copyPoolAddressHandler={copyPoolAddressHandler}
-                style={{ padding: "8px 8px  0 0px" }}
+                style={{ padding: '8px 8px  0 0px' }}
               />
             </Hidden>
           </Grid>
@@ -230,26 +206,20 @@ const PositionDetails: React.FC<IProps> = ({
               detailsData.length
                 ? xToY
                   ? detailsData
-                  : detailsData
-                      .map((tick) => ({ ...tick, x: 1 / tick.x }))
-                      .reverse()
+                  : detailsData.map(tick => ({ ...tick, x: 1 / tick.x })).reverse()
                 : Array(100)
                     .fill(1)
                     .map((_e, index) => ({
                       x: index,
                       y: index,
-                      index: BigInt(index),
+                      index: BigInt(index)
                     }))
             }
-            leftRange={
-              xToY ? leftRange : { ...rightRange, x: 1 / rightRange.x }
-            }
-            rightRange={
-              xToY ? rightRange : { ...leftRange, x: 1 / leftRange.x }
-            }
+            leftRange={xToY ? leftRange : { ...rightRange, x: 1 / rightRange.x }}
+            rightRange={xToY ? rightRange : { ...leftRange, x: 1 / leftRange.x }}
             midPrice={{
               ...midPrice,
-              x: midPrice.x ** (xToY ? 1 : -1),
+              x: midPrice.x ** (xToY ? 1 : -1)
             }}
             currentPrice={currentPrice ** (xToY ? 1 : -1)}
             tokenY={tokenY}
@@ -265,7 +235,7 @@ const PositionDetails: React.FC<IProps> = ({
         </Grid>
       </Grid>
     </Grid>
-  );
-};
+  )
+}
 
-export default PositionDetails;
+export default PositionDetails
