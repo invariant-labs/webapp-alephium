@@ -9,6 +9,19 @@ export enum Status {
   Error = 'error',
   Initialized = 'initalized'
 }
+
+export enum RpcStatus {
+  Uninitialized,
+  Error,
+  Ignored,
+  IgnoredWithError
+}
+
+const RPC_STATUS =
+  localStorage.getItem('IS_RPC_WARNING_IGNORED') === 'true'
+    ? RpcStatus.Ignored
+    : RpcStatus.Uninitialized
+
 export interface IAlephiumConnectionStore {
   status: Status
   message: string
@@ -16,6 +29,7 @@ export interface IAlephiumConnectionStore {
   blockNumber: number
   rpcAddress: string
   invariantAddress: string
+  rpcStatus: RpcStatus
 }
 
 const network =
@@ -28,7 +42,8 @@ export const defaultState: IAlephiumConnectionStore = {
   networkType: network,
   blockNumber: 0,
   rpcAddress: localStorage.getItem(`INVARIANT_RPC_Alephium_${network}`) ?? RPC.TEST,
-  invariantAddress: INVARIANT_ADDRESS[network]
+  invariantAddress: INVARIANT_ADDRESS[network],
+  rpcStatus: RPC_STATUS
 }
 export const connectionSliceName = 'connection'
 const connectionSlice = createSlice({
@@ -61,6 +76,13 @@ const connectionSlice = createSlice({
     },
     setRPCAddress(state, action: PayloadAction<string>) {
       state.rpcAddress = action.payload
+      return state
+    },
+    setRpcStatus(state, action: PayloadAction<RpcStatus>) {
+      state.rpcStatus = action.payload
+      return state
+    },
+    handleRpcError(state, _action: PayloadAction<PromiseRejectionEvent>) {
       return state
     }
   }

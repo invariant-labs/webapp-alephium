@@ -21,6 +21,7 @@ import { ISelectChain } from '@store/consts/types'
 import SelectChain from '@components/Modals/SelectChain/SelectChain'
 import SelectMainnetRPC from '@components/Modals/SelectMainnetRPC/SelectMainnetRPC'
 import { ConnectModal } from '@components/Modals/ConnectModal'
+import { RpcStatus } from '@store/reducers/connection'
 
 export interface IHeader {
   address: string
@@ -42,6 +43,7 @@ export interface IHeader {
   connectModalShown: boolean
   setShowConnectModal: (show: boolean) => void
   connecting: boolean
+  rpcStatus: RpcStatus
 }
 
 export const Header: React.FC<IHeader> = ({
@@ -63,7 +65,8 @@ export const Header: React.FC<IHeader> = ({
   defaultMainnetRPC,
   connectModalShown,
   setShowConnectModal,
-  connecting
+  connecting,
+  rpcStatus
 }) => {
   const { classes } = useStyles()
   const buttonStyles = useButtonStyles()
@@ -183,6 +186,7 @@ export const Header: React.FC<IHeader> = ({
                 networks={network === Network.Testnet ? testnetRPCs : mainnetRPCs}
                 onSelect={onNetworkSelect}
                 network={network}
+                rpcStatus={rpcStatus}
               />
             </Box>
             <Box sx={{ display: { xs: 'none', md: 'block' } }}>
@@ -293,6 +297,7 @@ export const Header: React.FC<IHeader> = ({
                 unblurContent()
               }}
               activeRPC={rpc}
+              rpcStatus={rpcStatus}
             />
           ) : (
             <SelectMainnetRPC
@@ -305,6 +310,7 @@ export const Header: React.FC<IHeader> = ({
                 unblurContent()
               }}
               activeRPC={rpc}
+              rpcStatus={rpcStatus}
             />
           )}
           <SelectChain

@@ -26,6 +26,7 @@ import {
   takeLatest,
   takeLeading
 } from 'typed-redux-saga'
+import { handleRpcError } from './connection'
 
 export function* getBalance(walletAddress: string): SagaGenerator<TokenAmount> {
   return yield* call(balanceOf, ALPH_TOKEN_ID, walletAddress)
@@ -105,6 +106,8 @@ export function* handleAirdrop(): Generator {
 
     closeSnackbar(loaderAirdrop)
     yield put(snackbarsActions.remove(loaderAirdrop))
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -143,6 +146,8 @@ export function* init(isEagerConnect: boolean, signer: SignerProvider): Generato
     yield* put(actions.setStatus(Status.Initialized))
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -202,6 +207,8 @@ export function* handleDisconnect(): Generator {
     )
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 

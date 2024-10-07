@@ -7,6 +7,7 @@ import { poolsArraySortedByFees, tokens } from '@store/selectors/pools'
 import { address } from '@store/selectors/wallet'
 import { all, call, put, select, spawn, take, takeEvery, takeLatest } from 'typed-redux-saga'
 import { invariantAddress } from '@store/selectors/connection'
+import { handleRpcError } from './connection'
 
 export function* fetchPoolData(action: PayloadAction<PoolKey>): Generator {
   try {
@@ -28,6 +29,8 @@ export function* fetchPoolData(action: PayloadAction<PoolKey>): Generator {
   } catch (error) {
     console.log(error)
     yield* put(actions.addPool())
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -55,6 +58,8 @@ export function* fetchAllPoolKeys(): Generator {
   } catch (error) {
     yield* put(actions.setPoolKeys([]))
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -70,6 +75,8 @@ export function* fetchAllPoolsForPairData(action: PayloadAction<PairTokens>) {
     yield* put(actions.addPools(poolPairs))
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -125,6 +132,8 @@ export function* fetchTicksAndTickMaps(action: PayloadAction<FetchTicksAndTickMa
     yield* put(actions.stopIsLoadingTicksAndTickMaps())
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -178,6 +187,8 @@ export function* handleGetTokens(action: PayloadAction<string[]>) {
     yield* put(actions.addTokens(tokensData))
   } catch (e) {
     yield* put(actions.setTokensError(true))
+
+    yield* call(handleRpcError, (e as Error).message)
   }
 }
 

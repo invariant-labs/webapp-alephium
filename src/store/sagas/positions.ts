@@ -40,6 +40,7 @@ import { all, call, fork, join, put, select, spawn, takeEvery, takeLatest } from
 import { fetchTicksAndTickMaps, fetchTokens } from './pools'
 import { fetchBalances } from './wallet'
 import { positionsList } from '@store/selectors/positions'
+import { handleRpcError } from './connection'
 
 function* handleInitPosition(action: PayloadAction<InitPositionData>): Generator {
   const {
@@ -303,6 +304,8 @@ export function* handleGetCurrentPlotTicks(action: PayloadAction<GetCurrentTicks
       yDecimal
     )
     yield* put(actions.setErrorPlotTicks(data))
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -416,6 +419,8 @@ export function* handleGetSinglePosition(action: PayloadAction<bigint>) {
     console.log(e)
     yield* put(actions.setCurrentPositionTickLoading(false))
     yield* put(actions.setPositionsList([]))
+
+    yield* call(handleRpcError, (e as Error).message)
   }
 }
 
@@ -557,6 +562,8 @@ export function* handleGetRemainingPositions(
   } catch (error) {
     console.log(error)
     yield* put(actions.setPositionsList([]))
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
@@ -656,6 +663,8 @@ export function* handleGetPositionsListPage(
     console.log(error)
     yield* put(actions.setPositionsList([]))
     yield* put(actions.setPositionsListLoadedStatus({ indexes: [index], isLoaded: true }))
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 

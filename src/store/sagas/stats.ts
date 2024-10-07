@@ -5,6 +5,7 @@ import { tokens } from '@store/selectors/pools'
 import { getFullSnap, getTokenMetadata } from '@utils/utils'
 import { call, put, select, takeEvery } from 'typed-redux-saga'
 import { FungibleToken } from '@invariant-labs/alph-sdk'
+import { handleRpcError } from './connection'
 
 export function* getStats(): Generator {
   try {
@@ -33,6 +34,8 @@ export function* getStats(): Generator {
     yield* put(poolsActions.addTokens(unknownTokensData))
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 
