@@ -1,5 +1,6 @@
-import { Box, Button, Popover, Typography } from '@mui/material'
+import { Box, Button, Popover, Typography, useMediaQuery } from '@mui/material'
 import useStyles from './style'
+import { theme } from '@static/theme'
 
 export interface Props {
   open: boolean
@@ -15,6 +16,8 @@ export const ConnectModal: React.FC<Props> = ({
   connecting
 }) => {
   const { classes } = useStyles()
+
+  const isMdDown = useMediaQuery(theme.breakpoints.down('md'))
 
   return (
     <Popover
@@ -35,15 +38,19 @@ export const ConnectModal: React.FC<Props> = ({
         <Typography className={classes.title}>Connect wallet</Typography>
         <Box className={classes.container}>
           <Box className={classes.leftPanel}>
-            <Button className={classes.button} onClick={() => onConnectWallet('injected')}>
-              Extension Wallet
-            </Button>
+            {!isMdDown && (
+              <Button className={classes.button} onClick={() => onConnectWallet('injected')}>
+                Extension Wallet
+              </Button>
+            )}
             <Button className={classes.button} onClick={() => onConnectWallet('walletConnect')}>
               Wallet Connect
             </Button>
-            <Button className={classes.button} onClick={() => onConnectWallet('desktopWallet')}>
-              Desktop Wallet
-            </Button>
+            {!isMdDown && (
+              <Button className={classes.button} onClick={() => onConnectWallet('desktopWallet')}>
+                Desktop Wallet
+              </Button>
+            )}
           </Box>
           <Box className={classes.rightPanel}>
             {connecting ? (
