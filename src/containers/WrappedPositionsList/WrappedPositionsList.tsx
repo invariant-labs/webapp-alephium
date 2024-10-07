@@ -173,7 +173,8 @@ export const WrappedPositionsList: React.FC = () => {
           dispatch(walletActions.setShowConnectModal(true))
         },
         title: 'Start exploring liquidity pools right now!',
-        descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!'
+        descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!',
+        onExplorePools: () => navigate('/newPosition/0_01')
       }}
       pageChanged={page => {
         const index = positionListPageToQueryPage(page)
