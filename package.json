@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "prettify": "prettier --check .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "update-mainnet-list": "node ./src/fetchMainnetList.js"
   },
   "dependencies": {
     "@alephium/web3": "^1.7.3",

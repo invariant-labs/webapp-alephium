@@ -1,9 +1,9 @@
 import {
   ALPH_TOKEN_ID,
-  BTC_ID,
-  ETH_ID,
+  BTC_ID as BTC_ID_SDK,
+  ETH_ID as ETH_ID_SDK,
   Network,
-  USDC_ID,
+  USDC_ID as USDC_ID_SDK,
   Position,
   Percentage,
   Liquidity,
@@ -21,6 +21,20 @@ import {
   TokenPriceData
 } from './types'
 import { bestTiersCreator } from '@utils/uiUtils'
+import mainnetListJson from '@store/consts/tokenLists/mainnet.json'
+
+export const BTC_ID = {
+  ...BTC_ID_SDK,
+  [Network.Mainnet]: '5EEtCdKLyyhQnNQWWWPM1fMDx1WdVuiaoR9cA6CWttgyxtuJ'
+}
+export const ETH_ID = {
+  ...ETH_ID_SDK,
+  [Network.Mainnet]: '5EoFQd36196Duo6fPTz2MWHXRzwTJcyETHyCyaB3rb61Xo2u'
+}
+export const USDC_ID = {
+  ...USDC_ID_SDK,
+  [Network.Mainnet]: '5FYFojNCJVFR2bBNKfAePZCa72ZcVX5yeTv8K9bzeUo8D83Z'
+}
 
 export enum RPC {
   TEST = 'https://node.testnet.alephium.org',
@@ -91,46 +105,6 @@ export const TESTNET_ALPH: Token = {
   coingeckoId: 'alephium'
 }
 
-export const MAINNET_BTC: Token = {
-  symbol: 'BTC',
-  address: BTC_ID[Network.Mainnet],
-  decimals: 8n,
-  name: 'Bitcoin',
-  logoURI:
-    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png',
-  coingeckoId: 'bitcoin'
-}
-
-export const MAINNET_ETH: Token = {
-  symbol: 'ETH',
-  address: ETH_ID[Network.Mainnet],
-  decimals: 18n,
-  name: 'Ether',
-  logoURI:
-    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk/logo.png',
-  coingeckoId: 'ethereum'
-}
-
-export const MAINNET_USDC: Token = {
-  symbol: 'USDC',
-  address: USDC_ID[Network.Mainnet],
-  decimals: 6n,
-  name: 'USDC',
-  logoURI:
-    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
-  coingeckoId: 'usd-coin'
-}
-
-export const MAINNET_ALPH: Token = {
-  symbol: 'ALPH',
-  address: ALPH_TOKEN_ID,
-  decimals: 18n,
-  name: 'Alephium',
-  logoURI:
-    'https://assets.coingecko.com/coins/images/21598/standard/Alephium-Logo_200x200_listing.png',
-  coingeckoId: 'alephium'
-}
-
 export const DEFAULT_TOKENS = ['bitcoin', 'ethereum', 'usd-coin', 'alephium']
 
 export const bestTiers: Record<Network, BestTier[]> = {
@@ -147,13 +121,43 @@ export const commonTokensForNetworks: Record<Network, string[]> = {
     TESTNET_ALPH.address
   ],
   [Network.Mainnet]: [
-    MAINNET_BTC.address,
-    MAINNET_ETH.address,
-    MAINNET_USDC.address,
-    MAINNET_ALPH.address
+    BTC_ID[Network.Mainnet],
+    ETH_ID[Network.Mainnet],
+    USDC_ID[Network.Mainnet],
+    ALPH_TOKEN_ID
   ],
   [Network.Devnet]: []
 }
+
+const commonTokensLogos = {
+  [BTC_ID[Network.Mainnet]]:
+    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/9n4nbM75f5Ui33ZbPYXn59EwSgE8CGsHtAeTH5YFeJ9E/logo.png',
+  [ETH_ID[Network.Mainnet]]:
+    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/2FPyTwcZLUg1MDrwsyoP4D6s1tM7hAkHYRjkNb5w6Pxk/logo.png',
+  [USDC_ID[Network.Mainnet]]:
+    'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
+  [ALPH_TOKEN_ID]:
+    'https://assets.coingecko.com/coins/images/21598/standard/Alephium-Logo_200x200_listing.png'
+}
+
+export const mainnetList = (() => {
+  const parsedMainnetList: Record<string, Token> = {}
+
+  const mainnetList = mainnetListJson as unknown as Record<string, Token>
+
+  Object.keys(mainnetList).forEach(token => {
+    if (commonTokensLogos[token]) {
+      parsedMainnetList[token] = {
+        ...mainnetList[token],
+        logoURI: commonTokensLogos[token]
+      }
+    } else {
+      parsedMainnetList[token] = mainnetList[token]
+    }
+  })
+
+  return parsedMainnetList
+})()
 
 export const ALL_FEE_TIERS_DATA = FEE_TIERS.map((tier, index) => ({
   tier,
@@ -230,11 +234,23 @@ export const defaultPrefixConfig: PrefixConfig = {
 }
 
 export const getAddressTickerMap = (network: Network): { [k: string]: string } => {
-  return {
-    BTC: BTC_ID[network],
-    ETH: ETH_ID[network],
-    USDC: USDC_ID[network],
-    ALPH: ALPH_TOKEN_ID
+  if (network !== Network.Mainnet) {
+    return {
+      BTC: BTC_ID[network],
+      ETH: ETH_ID[network],
+      USDC: USDC_ID[network],
+      ALPH: ALPH_TOKEN_ID
+    }
+  } else {
+    const parsedMainnetList = mainnetList as unknown as Record<string, Token>
+    const result: { [k: string]: string } = {}
+
+    Object.keys(parsedMainnetList).forEach((key: string) => {
+      const token = parsedMainnetList[key]
+      result[token.symbol] = token.address
+    })
+
+    return result
   }
 }
 
