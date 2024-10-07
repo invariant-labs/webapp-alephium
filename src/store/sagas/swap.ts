@@ -291,7 +291,6 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           targetSqrtPrice = result.targetSqrtPrice
         }
       } catch (e) {
-        console.log(e)
         errors.push(SwapError.Unknown)
 
         yield* call(handleRpcError, (e as Error).message)
