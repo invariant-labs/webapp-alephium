@@ -13,7 +13,7 @@ import { Chain } from '@store/consts/types'
 import { useConnect, useConnectSettingContext, useWallet } from '@alephium/web3-react'
 import { web3 } from '@alephium/web3'
 import { blurContent, unblurContent } from '@utils/uiUtils'
-import { RpcErrorModal } from '@components/Modals/RpcErrorModal/RpcErrorModal'
+import { RpcErrorModal } from '@components/RpcErrorModal/RpcErrorModal'
 
 export const HeaderWrapper: React.FC = () => {
   const dispatch = useDispatch()
