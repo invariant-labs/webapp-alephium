@@ -11,10 +11,23 @@ import {
 
 const store = (s: AnyProps) => s[walletSliceName] as IAlephiumWallet
 
-export const { address, balance, tokensBalances, status, balanceLoading, signer } = keySelectors(
-  store,
-  ['address', 'balance', 'tokensBalances', 'status', 'balanceLoading', 'signer']
-)
+export const {
+  address,
+  balance,
+  tokensBalances,
+  status,
+  balanceLoading,
+  signer,
+  showConnectModal
+} = keySelectors(store, [
+  'address',
+  'balance',
+  'tokensBalances',
+  'status',
+  'balanceLoading',
+  'signer',
+  'showConnectModal'
+])
 
 export const tokenBalance = (tokenAddress: string) =>
   createSelector(tokensBalances, tokensAccounts => {
@@ -142,6 +155,7 @@ export const alephiumWalletSelectors = {
   tokensBalances,
   status,
   balanceLoading,
-  signer
+  signer,
+  showConnectModal
 }
 export default alephiumWalletSelectors

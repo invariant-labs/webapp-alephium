@@ -7,8 +7,23 @@ import { theme } from '@static/theme'
 import { ThemeProvider } from '@mui/material/styles'
 import Notifier from '@containers/Notifier'
 import { filterConsoleMessages, messagesToHide } from './hideErrors'
-import { AlephiumWalletProvider } from '@alephium/web3-react'
 import { web3 } from '@alephium/web3'
+import { WalletProvider } from './WalletProvider'
+
+const originalWindowOpen = window.open
+;(window as any).open = (
+  url: string | URL,
+  target?: string,
+  features?: string
+): WindowProxy | null => {
+  const newWindow = originalWindowOpen.call(this, url, target, features)
+
+  if (url.toString().startsWith('alephium://')) {
+    ;(window as any).alephiumDesktopWalletWindow = newWindow
+  }
+
+  return newWindow
+}
 
 filterConsoleMessages(messagesToHide)
 
@@ -16,20 +31,18 @@ web3.setCurrentNodeProvider('https://node.testnet.alephium.org')
 
 function App() {
   return (
-    <>
-      <AlephiumWalletProvider theme='retro' network='testnet' addressGroup={0}>
-        <Provider store={store}>
-          <ThemeProvider theme={theme}>
-            <SnackbarProvider maxSnack={99}>
-              <>
-                <Notifier />
-                <RouterProvider router={router} />
-              </>
-            </SnackbarProvider>
-          </ThemeProvider>
-        </Provider>
-      </AlephiumWalletProvider>
-    </>
+    <WalletProvider>
+      <Provider store={store}>
+        <ThemeProvider theme={theme}>
+          <SnackbarProvider maxSnack={99}>
+            <>
+              <Notifier />
+              <RouterProvider router={router} />
+            </>
+          </SnackbarProvider>
+        </ThemeProvider>
+      </Provider>
+    </WalletProvider>
   )
 }
 

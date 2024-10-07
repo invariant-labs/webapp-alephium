@@ -20,11 +20,12 @@ import SelectChainButton from './HeaderButton/SelectChainButton'
 import { ISelectChain } from '@store/consts/types'
 import SelectChain from '@components/Modals/SelectChain/SelectChain'
 import SelectMainnetRPC from '@components/Modals/SelectMainnetRPC/SelectMainnetRPC'
+import { ConnectModal } from '@components/Modals/ConnectModal'
 
 export interface IHeader {
   address: string
   onNetworkSelect: (networkType: Network, rpcAddress: string, rpcName?: string) => void
-  onConnectWallet: () => void
+  onConnectWallet: (id: 'injected' | 'walletConnect' | 'desktopWallet') => void
   walletConnected: boolean
   landing: string
   typeOfNetwork: Network
@@ -38,6 +39,9 @@ export interface IHeader {
   onChainSelect: (chain: ISelectChain) => void
   network: Network
   defaultMainnetRPC: string
+  connectModalShown: boolean
+  setShowConnectModal: (show: boolean) => void
+  connecting: boolean
 }
 
 export const Header: React.FC<IHeader> = ({
@@ -56,7 +60,10 @@ export const Header: React.FC<IHeader> = ({
   activeChain,
   onChainSelect,
   network,
-  defaultMainnetRPC
+  defaultMainnetRPC,
+  connectModalShown,
+  setShowConnectModal,
+  connecting
 }) => {
   const { classes } = useStyles()
   const buttonStyles = useButtonStyles()
@@ -216,7 +223,7 @@ export const Header: React.FC<IHeader> = ({
                   }`
                 : 'Connect wallet'
             }
-            onConnect={onConnectWallet}
+            onConnect={() => setShowConnectModal(true)}
             connected={walletConnected}
             onDisconnect={onDisconnectWallet}
             startIcon={
@@ -224,6 +231,12 @@ export const Header: React.FC<IHeader> = ({
             }
             onCopyAddress={onCopyAddress}
             onChangeWallet={onChangeWallet}
+          />
+          <ConnectModal
+            open={connectModalShown}
+            handleClose={() => setShowConnectModal(false)}
+            onConnectWallet={onConnectWallet}
+            connecting={connecting}
           />
         </Grid>
 

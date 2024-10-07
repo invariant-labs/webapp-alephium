@@ -523,7 +523,7 @@ export const NewPositionWrapper: React.FC<IProps> = ({
     }
   }
 
-  const { connect, disconnect } = useConnect()
+  const { disconnect } = useConnect()
 
   return (
     <NewPosition
@@ -688,7 +688,7 @@ export const NewPositionWrapper: React.FC<IProps> = ({
       alphBalance={alphBalance}
       walletStatus={walletStatus}
       onConnectWallet={async () => {
-        await connect()
+        dispatch(walletActions.setShowConnectModal(true))
       }}
       onDisconnectWallet={async () => {
         await disconnect()

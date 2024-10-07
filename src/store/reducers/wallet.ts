@@ -21,6 +21,7 @@ export interface IAlephiumWallet {
   tokensBalances: { [key in string]: ITokenBalance }
   balanceLoading: boolean
   signer: SignerProvider | null
+  showConnectModal: boolean
 }
 
 export const defaultState: IAlephiumWallet = {
@@ -29,15 +30,16 @@ export const defaultState: IAlephiumWallet = {
   balance: 0n,
   tokensBalances: {},
   balanceLoading: false,
-  signer: null
+  signer: null,
+  showConnectModal: false
 }
 export const walletSliceName = 'wallet'
 const walletSlice = createSlice({
   name: walletSliceName,
   initialState: defaultState,
   reducers: {
-    resetState() {
-      return defaultState
+    resetState(state) {
+      return { ...defaultState, showConnectModal: state.showConnectModal }
     },
     setAddress(state, action: PayloadAction<string>) {
       state.address = action.payload
@@ -90,6 +92,10 @@ const walletSlice = createSlice({
     setSigner(stats, action: PayloadAction<SignerProvider | null>) {
       stats.signer = action.payload
       return stats
+    },
+    setShowConnectModal(state, action: PayloadAction<boolean>) {
+      state.showConnectModal = action.payload
+      return state
     }
   }
 })
