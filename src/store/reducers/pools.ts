@@ -12,16 +12,7 @@ import {
   USDC_ID
 } from '@invariant-labs/alph-sdk'
 import { PayloadAction, createSlice } from '@reduxjs/toolkit'
-import {
-  MAINNET_ALPH,
-  MAINNET_BTC,
-  MAINNET_ETH,
-  MAINNET_USDC,
-  TESTNET_ALPH,
-  TESTNET_BTC,
-  TESTNET_ETH,
-  TESTNET_USDC
-} from '@store/consts/static'
+import { TESTNET_ALPH, TESTNET_BTC, TESTNET_ETH, TESTNET_USDC } from '@store/consts/static'
 import { PayloadType, Token } from '@store/consts/types'
 import { poolKeyToString } from '@utils/utils'
 
@@ -91,12 +82,7 @@ const network =
 export const defaultState: IPoolsStore = {
   tokens:
     network === Network.Mainnet
-      ? {
-          [BTC_ID[Network.Mainnet]]: MAINNET_BTC,
-          [ETH_ID[Network.Mainnet]]: MAINNET_ETH,
-          [USDC_ID[Network.Mainnet]]: MAINNET_USDC,
-          [ALPH_TOKEN_ID]: MAINNET_ALPH
-        }
+      ? {}
       : {
           [BTC_ID[Network.Testnet]]: TESTNET_BTC,
           [ETH_ID[Network.Testnet]]: TESTNET_ETH,

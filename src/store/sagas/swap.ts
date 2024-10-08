@@ -34,6 +34,7 @@ import { closeSnackbar } from 'notistack'
 import { all, call, put, select, spawn, takeEvery } from 'typed-redux-saga'
 import { fetchBalances } from './wallet'
 import { balanceOf } from '@invariant-labs/alph-sdk/dist/src/utils'
+import { handleRpcError } from './connection'
 
 export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generator {
   const {
@@ -290,8 +291,9 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
           targetSqrtPrice = result.targetSqrtPrice
         }
       } catch (e) {
-        console.log(e)
         errors.push(SwapError.Unknown)
+
+        yield* call(handleRpcError, (e as Error).message)
       }
     }
 
@@ -309,6 +311,8 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
     )
   } catch (error) {
     console.log(error)
+
+    yield* call(handleRpcError, (error as Error).message)
   }
 }
 

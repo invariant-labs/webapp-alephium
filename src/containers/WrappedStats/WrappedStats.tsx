@@ -21,6 +21,7 @@ import Liquidity from '@components/Stats/Liquidity/Liquidity'
 import VolumeBar from '@components/Stats/volumeBar/VolumeBar'
 import TokensList from '@components/Stats/TokensList/TokensList'
 import PoolList from '@components/Stats/PoolList/PoolList'
+import { useNavigate } from 'react-router-dom'
 
 export const WrappedStats: React.FC = () => {
   const { classes } = useStyles()
@@ -41,13 +42,18 @@ export const WrappedStats: React.FC = () => {
     dispatch(actions.getCurrentStats())
   }, [])
 
+  const navigate = useNavigate()
+
   return (
     <Grid container className={classes.wrapper} direction='column'>
       {isLoadingStats ? (
         <img src={loader} className={classes.loading} alt='Loading' />
-      ) : liquidityPlotData.length === 0 ? (
+      ) : !liquidityPlotData || liquidityPlotData.length === 0 ? (
         <Grid container direction='column' alignItems='center'>
-          <EmptyPlaceholder desc={'We have not started collecting statistics yet'} />
+          <EmptyPlaceholder
+            desc={'We have not started collecting statistics yet'}
+            onAction={() => navigate('/newPosition')}
+          />
         </Grid>
       ) : (
         <>

@@ -2,18 +2,21 @@ import { Button, Grid, Typography } from '@mui/material'
 import icons from '@static/icons'
 import classNames from 'classnames'
 import { useStyles } from './style'
-import { useNavigate } from 'react-router-dom'
 
 export interface INoConnected {
   onConnect: () => void
   title?: string
   descCustomText?: string
+  onExplorePools: () => void
 }
 
-export const NoConnected: React.FC<INoConnected> = ({ onConnect, title, descCustomText }) => {
+export const NoConnected: React.FC<INoConnected> = ({
+  onConnect,
+  title,
+  descCustomText,
+  onExplorePools
+}) => {
   const { classes } = useStyles()
-
-  const navigate = useNavigate()
 
   return (
     <>
@@ -26,12 +29,7 @@ export const NoConnected: React.FC<INoConnected> = ({ onConnect, title, descCust
           {descCustomText?.length && (
             <Typography className={classes.desc}>{descCustomText}</Typography>
           )}
-          <Button
-            className={classes.buttonPrimary}
-            onClick={() => {
-              navigate('/newPosition/0_01')
-            }}
-            variant='contained'>
+          <Button className={classes.buttonPrimary} onClick={onExplorePools} variant='contained'>
             Explore pools
           </Button>
 
