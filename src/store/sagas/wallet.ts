@@ -82,8 +82,7 @@ export function* handleAirdrop(): Generator {
       TokenAirdropAmount.ETH as TokenAmount,
       faucetTokenList.ETH,
       TokenAirdropAmount.USDC as TokenAmount,
-      faucetTokenList.USDC,
-      address
+      faucetTokenList.USDC
     )
 
     closeSnackbar(loaderAirdrop)
