@@ -34,7 +34,7 @@ export const poolsStatsWithTokensDetails = createSelector(
   poolsData,
   tokens,
   (allPoolsData, allTokens) =>
-    allPoolsData.map(poolData => ({
+    allPoolsData?.map(poolData => ({
       ...poolData,
       tokenXDetails: allTokens[poolData.tokenX.toString()],
       tokenYDetails: allTokens[poolData.tokenY.toString()]
@@ -48,7 +48,7 @@ export const tokensStatsWithTokensDetails = createSelector(
   tokensData,
   tokens,
   (allTokensData, allTokens) =>
-    allTokensData.map(tokenData => ({
+    allTokensData?.map(tokenData => ({
       ...tokenData,
       tokenDetails: allTokens?.[tokenData.address.toString()]
     }))
