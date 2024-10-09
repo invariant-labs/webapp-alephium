@@ -1,6 +1,8 @@
 import { Box, Button, Popover, Typography, useMediaQuery } from '@mui/material'
 import useStyles from './style'
 import { theme } from '@static/theme'
+import icons from '@static/icons'
+import loader from '@static/gif/loading2.gif'
 
 export interface Props {
   open: boolean
@@ -35,57 +37,66 @@ export const ConnectModal: React.FC<Props> = ({
         horizontal: 'center'
       }}>
       <Box className={classes.modal}>
-        <Typography className={classes.title}>Connect wallet</Typography>
-        <Box className={classes.container}>
-          <Box className={classes.leftPanel}>
-            {!isMdDown && (
-              <Button className={classes.button} onClick={() => onConnectWallet('injected')}>
-                Extension Wallet
+        <Box className={classes.gradient}>
+          <Typography className={classes.title}>Connect your wallet</Typography>
+          <img
+            className={classes.closeIcon}
+            src={icons.closeSmallIcon}
+            alt='Close icon'
+            onClick={handleClose}
+          />
+          <Box className={classes.container}>
+            <Box className={classes.buttonsPanel}>
+              <Typography className={classes.buttonsDescription}>
+                Choose and connect to one of the available wallets:
+              </Typography>
+              {!isMdDown && (
+                <>
+                  <Button className={classes.button} onClick={() => onConnectWallet('injected')}>
+                    <img src={icons.alephiumLogoToned} alt='Alephium logo' />
+                    Extension Wallet
+                  </Button>
+                  <Button
+                    className={classes.button}
+                    onClick={() => onConnectWallet('desktopWallet')}>
+                    <img src={icons.alephiumLogoToned} alt='Alephium logo' />
+                    Desktop Wallet
+                  </Button>
+                </>
+              )}
+              <Button className={classes.button} onClick={() => onConnectWallet('walletConnect')}>
+                <img src={icons.walletConnectLogoToned} alt='Wallet connect logo' />
+                Wallet Connect
               </Button>
-            )}
-            <Button className={classes.button} onClick={() => onConnectWallet('walletConnect')}>
-              Wallet Connect
-            </Button>
-            {!isMdDown && (
-              <Button className={classes.button} onClick={() => onConnectWallet('desktopWallet')}>
-                Desktop Wallet
-              </Button>
-            )}
-          </Box>
-          <Box className={classes.rightPanel}>
-            {connecting ? (
-              <>
-                <svg width='48' height='48' className={classes.spinner}>
-                  <circle
-                    stroke='#3A466B'
-                    strokeWidth='4'
-                    fill='transparent'
-                    r='12'
-                    cx='24'
-                    cy='24'
-                  />
-                  <circle
-                    strokeDasharray='20 100'
-                    stroke='#EF84F5'
-                    strokeWidth='4'
-                    fill='transparent'
-                    r='12'
-                    cx='24'
-                    cy='24'
-                  />
-                </svg>
-                <Typography className={classes.description}>Connecting wallet...</Typography>
-              </>
-            ) : (
-              <>
-                <Typography className={classes.description}>
-                  You need a wallet to connect to the app.
-                </Typography>
-                <a href='https://alephium.org/#wallets' target='_blank'>
-                  <Button className={classes.otherButton}>Get a wallet</Button>
-                </a>
-              </>
-            )}
+            </Box>
+            <div className={classes.line}></div>
+            <Box className={classes.infoPanel}>
+              {connecting ? (
+                <>
+                  <Box className={classes.spinnerContainer}>
+                    <img src={loader} alt='Loader' />
+                  </Box>
+                  <Box className={classes.infoLoadingContainer}>
+                    <Typography className={classes.infoTitle}>Please wait!</Typography>
+                    <Typography className={classes.infoDescription}>
+                      We are connecting with your wallet!
+                    </Typography>
+                  </Box>
+                </>
+              ) : (
+                <>
+                  <Box className={classes.infoContainer}>
+                    <Typography className={classes.infoTitle}>
+                      You don't have a wallet yet?
+                    </Typography>
+                    <Typography className={classes.infoDescription}>Get one down below!</Typography>
+                  </Box>
+                  <a href='https://alephium.org/#wallets' target='_blank'>
+                    <Button className={classes.infoButton}>Get your wallet now!</Button>
+                  </a>
+                </>
+              )}
+            </Box>
           </Box>
         </Box>
       </Box>

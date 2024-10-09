@@ -32,6 +32,8 @@ import solanaLogo from './svg/solanaLogo.svg'
 import varaLogo from './svg/VaraLogo.svg'
 import alephiumLogo from './svg/alephiumLogo.svg'
 import warningIcon from './svg/Warning.svg'
+import alephiumLogoToned from './svg/alephiumLogoToned.svg'
+import walletConnectLogoToned from './svg/walletConnectLogoToned.svg'
 
 const icons: { [key: string]: string } = {
   clear: clearIcon,
@@ -67,7 +69,9 @@ const icons: { [key: string]: string } = {
   Solana: solanaLogo,
   Vara: varaLogo,
   Alephium: alephiumLogo,
-  warningIcon
+  warningIcon,
+  alephiumLogoToned,
+  walletConnectLogoToned
 }
 
 export default icons

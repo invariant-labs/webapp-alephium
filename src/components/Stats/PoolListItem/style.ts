@@ -139,5 +139,9 @@ export const useStyles = makeStyles()(() => ({
         filter: 'none'
       }
     }
+  },
+
+  tokenIcon: {
+    background: colors.white.main
   }
 }))

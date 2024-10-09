@@ -93,8 +93,8 @@ const PoolListItem: React.FC<IProps> = ({
           <Grid className={classes.imageContainer}>
             {!isSm && (
               <Box className={classes.iconsWrapper}>
-                <img src={iconFrom} alt='Token from' />
-                <img src={iconTo} alt='Token to' />
+                <img className={classes.tokenIcon} src={iconFrom} alt='Token from' />
+                <img className={classes.tokenIcon} src={iconTo} alt='Token to' />
               </Box>
             )}
             <Grid className={classes.symbolsContainer}>

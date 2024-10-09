@@ -75,5 +75,9 @@ export const useStyles = makeStyles()((theme: Theme) => ({
     [theme.breakpoints.down('sm')]: {
       marginLeft: -4
     }
+  },
+
+  tokenIcon: {
+    background: colors.white.main
   }
 }))
