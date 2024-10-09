@@ -8,12 +8,12 @@ const useStyles = makeStyles()(() => {
       boxShadow: 'none'
     },
     popover: {
-      marginTop: 'calc(50vh - 184px)',
-      marginLeft: 'calc(50vw - 160px)',
+      marginTop: 'calc(50vh - 197px)',
+      marginLeft: 'calc(50vw - 157px)',
 
       [theme.breakpoints.up('md')]: {
-        marginTop: 'calc(50vh - 134px)',
-        marginLeft: 'calc(50vw - 276px)'
+        marginTop: 'calc(50vh - 144px)',
+        marginLeft: 'calc(50vw - 279px)'
       }
     },
     modal: {
