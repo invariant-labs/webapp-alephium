@@ -2,6 +2,7 @@ import { Box, Button, Popover, Typography, useMediaQuery } from '@mui/material'
 import useStyles from './style'
 import { theme } from '@static/theme'
 import icons from '@static/icons'
+import loader from '@static/gif/loading2.gif'
 
 export interface Props {
   open: boolean
@@ -73,25 +74,7 @@ export const ConnectModal: React.FC<Props> = ({
               {connecting ? (
                 <>
                   <Box className={classes.spinnerContainer}>
-                    <svg width='96' height='96' className={classes.spinner}>
-                      <circle
-                        stroke='#3A466B'
-                        strokeWidth='8'
-                        fill='transparent'
-                        r='24'
-                        cx='48'
-                        cy='48'
-                      />
-                      <circle
-                        strokeDasharray='32 200'
-                        stroke='#EF84F5'
-                        strokeWidth='8'
-                        fill='transparent'
-                        r='24'
-                        cx='48'
-                        cy='48'
-                      />
-                    </svg>
+                    <img src={loader} alt='Loader' />
                   </Box>
                   <Box className={classes.infoLoadingContainer}>
                     <Typography className={classes.infoTitle}>Please wait!</Typography>
