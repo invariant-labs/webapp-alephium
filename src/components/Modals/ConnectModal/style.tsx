@@ -20,30 +20,43 @@ const useStyles = makeStyles()(() => {
       background: colors.invariant.component,
       display: 'flex',
       flexDirection: 'column',
-      gap: 12,
-      padding: 32,
-      borderRadius: 20
+      gap: 24,
+      borderRadius: 24
     },
     title: {
-      ...typography.heading4,
-      marginBottom: 16
+      ...typography.heading2,
+      textAlign: 'center',
+
+      [theme.breakpoints.down('md')]: {
+        ...typography.heading3,
+        textAlign: 'left'
+      }
+    },
+    buttonsDescription: {
+      ...typography.body2,
+      textAlign: 'center',
+      color: colors.invariant.textGrey
+    },
+    closeIcon: {
+      position: 'absolute',
+      top: 24,
+      right: 24,
+      cursor: 'pointer'
     },
     button: {
-      height: 40,
+      height: 28,
       width: '100%',
-      background: colors.invariant.pinkLinearGradientOpacity,
-      color: colors.invariant.newDark,
-      borderRadius: 14,
-      ...typography.body1,
+      background: colors.invariant.light,
+      color: colors.white.main,
+      borderRadius: 8,
+      ...typography.body2,
       textTransform: 'none',
+      display: 'flex',
+      gap: 12,
 
       '&:hover': {
         boxShadow: `0 0 15px ${colors.invariant.light}`,
         backgroundColor: colors.invariant.light
-      },
-
-      [theme.breakpoints.up('md')]: {
-        width: 200
       }
     },
     container: {
@@ -55,27 +68,55 @@ const useStyles = makeStyles()(() => {
         flexDirection: 'row'
       }
     },
-    leftPanel: {
+    buttonsPanel: {
+      width: 180,
+      background: colors.invariant.newDark,
       display: 'flex',
       flexDirection: 'column',
-      gap: 16
+      gap: 12,
+      padding: 8,
+      borderRadius: 8,
+      flexShrink: 0,
+
+      [theme.breakpoints.down('md')]: {
+        width: 250
+      }
     },
-    rightPanel: {
-      width: 256,
+    infoPanel: {
+      width: 250,
       display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: 8
+      gap: 24,
+      flexShrink: 0
     },
-    description: {
+    line: {
+      borderLeft: `1px solid ${colors.invariant.light}`,
+
+      [theme.breakpoints.down('md')]: {
+        borderLeft: 0,
+        borderTop: `1px solid ${colors.invariant.light}`
+      }
+    },
+    infoContainer: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 12,
+      textAlign: 'center'
+    },
+    infoTitle: {
+      color: colors.invariant.green,
+      ...typography.heading4
+    },
+    infoDescription: {
       ...typography.body2
     },
-    otherButton: {
-      height: 40,
-      width: 200,
-      background: colors.invariant.light,
-      color: colors.white.main,
+    infoButton: {
+      height: 46,
+      width: 250,
+      background: colors.invariant.pinkLinearGradientOpacity,
+      color: colors.invariant.newDark,
       borderRadius: 14,
       ...typography.body1,
       textTransform: 'none',
@@ -84,6 +125,18 @@ const useStyles = makeStyles()(() => {
         boxShadow: `0 0 15px ${colors.invariant.light}`,
         backgroundColor: colors.invariant.light
       }
+    },
+    infoLoadingContainer: {
+      textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column'
+    },
+    spinnerContainer: {
+      width: 100,
+      height: 100,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center'
     },
     spinner: {
       animation: 'spin 2s linear infinite',
@@ -95,6 +148,15 @@ const useStyles = makeStyles()(() => {
           transform: 'rotate(0deg)'
         }
       }
+    },
+    gradient: {
+      borderRadius: 24,
+      padding: 24,
+      background:
+        'radial-gradient(circle at top, rgba(239, 132, 245, 0.05), rgba(239, 132, 245, 0)), radial-gradient(circle at bottom, rgba(46, 224, 154, 0.05), rgba(46, 224, 154, 0))',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 32
     }
   }
 })
