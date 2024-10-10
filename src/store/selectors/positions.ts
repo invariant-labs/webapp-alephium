@@ -16,14 +16,16 @@ export const {
   plotTicks,
   currentPositionTicks,
   initPosition,
-  shouldNotUpdateRange
+  shouldNotUpdateRange,
+  closePosition
 } = keySelectors(store, [
   'lastPage',
   'positionsList',
   'plotTicks',
   'currentPositionTicks',
   'initPosition',
-  'shouldNotUpdateRange'
+  'shouldNotUpdateRange',
+  'closePosition'
 ])
 
 export const lastPageSelector = createSelector(lastPage, s => s)
@@ -93,7 +95,8 @@ export const positionsSelectors = {
   plotTicks,
   currentPositionTicks,
   initPosition,
-  shouldNotUpdateRange
+  shouldNotUpdateRange,
+  closePosition
 }
 
 export default positionsSelectors

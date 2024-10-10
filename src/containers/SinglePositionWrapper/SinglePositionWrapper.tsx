@@ -20,6 +20,7 @@ import { Status, actions as walletActions } from '@store/reducers/wallet'
 import { networkType } from '@store/selectors/connection'
 import { poolsArraySortedByFees, tickMaps } from '@store/selectors/pools'
 import {
+  closePosition,
   currentPositionTicks,
   isLoadingPositionsList,
   plotTicks,
@@ -64,6 +65,7 @@ export const SinglePositionWrapper: React.FC<IProps> = ({ id }) => {
   const walletStatus = useSelector(status)
   const isBalanceLoading = useSelector(balanceLoading)
   const poolsArray = useSelector(poolsArraySortedByFees)
+  const { inProgress: closePositionInProgress } = useSelector(closePosition)
   const { connect } = useConnect()
 
   const [waitingForTicksData, setWaitingForTicksData] = useState<boolean | null>(null)
@@ -347,7 +349,9 @@ export const SinglePositionWrapper: React.FC<IProps> = ({ id }) => {
             actions.closePosition({
               positionIndex: id,
               onSuccess: () => {
-                navigate('/liquidity')
+                if (window.location.href.includes('/position/')) {
+                  navigate('/liquidity')
+                }
               },
               addressTokenX: position.poolKey.tokenX,
               addressTokenY: position.poolKey.tokenY
@@ -402,6 +406,7 @@ export const SinglePositionWrapper: React.FC<IProps> = ({ id }) => {
         onRefresh={onRefresh}
         isBalanceLoading={isBalanceLoading}
         network={network}
+        closePositionInProgress={closePositionInProgress}
       />
     )
   }

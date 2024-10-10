@@ -291,6 +291,15 @@ export const useStyles = makeStyles()((theme: Theme) => ({
       height: 40
     }
   },
+  closeButtonDisabled: {
+    background: colors.invariant.light,
+    color: colors.invariant.dark,
+
+    '&:hover': {
+      background: colors.invariant.light,
+      boxShadow: 'none'
+    }
+  },
   button: {
     color: colors.invariant.black,
     ...typography.body1,

@@ -35,6 +35,10 @@ export interface CurrentPositionTicksStore {
   loading: boolean
 }
 
+export interface ClosePositionStore {
+  inProgress: boolean
+}
+
 export interface IPositionsStore {
   lastPage: number
   plotTicks: PlotTicks
@@ -42,6 +46,7 @@ export interface IPositionsStore {
   currentPositionTicks: CurrentPositionTicksStore
   initPosition: InitPositionStore
   shouldNotUpdateRange: boolean
+  closePosition: ClosePositionStore
 }
 export interface InitPositionData {
   poolKeyData: PoolKey
@@ -109,7 +114,10 @@ export const defaultState: IPositionsStore = {
     inProgress: false,
     success: false
   },
-  shouldNotUpdateRange: false
+  shouldNotUpdateRange: false,
+  closePosition: {
+    inProgress: false
+  }
 }
 
 export const positionsSliceName = 'positions'
@@ -226,7 +234,12 @@ const positionsSlice = createSlice({
       return state
     },
     closePosition(state, _action: PayloadAction<ClosePositionData>) {
+      state.closePosition.inProgress = true
       return state
+    },
+    setClosePositionNotInProgress(state) {
+      state.closePosition.inProgress = false
+      return
     },
     resetState(state) {
       state = defaultState

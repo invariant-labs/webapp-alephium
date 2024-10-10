@@ -28,6 +28,7 @@ interface IProp {
   isBalanceLoading: boolean
   isActive: boolean
   network: Network
+  closePositionInProgress: boolean
 }
 
 const SinglePositionInfo: React.FC<IProp> = ({
@@ -44,7 +45,8 @@ const SinglePositionInfo: React.FC<IProp> = ({
   userHasStakes = false,
   isBalanceLoading,
   isActive,
-  network
+  network,
+  closePositionInProgress
 }) => {
   const navigate = useNavigate()
 
@@ -158,16 +160,23 @@ const SinglePositionInfo: React.FC<IProp> = ({
           </Grid>
           <TooltipHover
             text={
-              tokenX.claimValue > 0 || tokenY.claimValue > 0
+              closePositionInProgress
+                ? "You can't close more than one position at a time"
+                : tokenX.claimValue > 0 || tokenY.claimValue > 0
                 ? 'Unclaimed fees will be returned when closing the position'
                 : ''
             }>
             <Button
-              className={classes.closeButton}
+              className={classNames(
+                classes.closeButton,
+                closePositionInProgress ? classes.closeButtonDisabled : ''
+              )}
               variant='contained'
               onClick={() => {
                 if (!userHasStakes) {
-                  closePosition()
+                  if (!closePositionInProgress) {
+                    closePosition()
+                  }
                 } else {
                   setIsModalOpen(true)
                   blurContent()

@@ -519,6 +519,8 @@ export function* handleClosePosition(action: PayloadAction<ClosePositionData>) {
       )
     }
   }
+
+  yield* put(actions.setClosePositionNotInProgress())
 }
 
 export function* handleGetRemainingPositions(
