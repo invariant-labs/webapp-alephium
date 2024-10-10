@@ -165,10 +165,10 @@ export const ALL_FEE_TIERS_DATA = FEE_TIERS.map((tier, index) => ({
   primaryIndex: index
 }))
 
-export const U256MAX = 2n ** 256n - 1n
+export const MAX = 2n ** 256n - 1n
 
 export const SWAP_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.1 * Number(ONE_ALPH)))
-export const POOL_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.55 * Number(ONE_ALPH)))
+export const POOL_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.6 * Number(ONE_ALPH)))
 export const POSITION_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.7 * Number(ONE_ALPH)))
 export const FAUCET_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.02 * Number(ONE_ALPH)))
 
