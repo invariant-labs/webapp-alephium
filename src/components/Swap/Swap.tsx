@@ -339,16 +339,6 @@ export const Swap: React.FC<ISwap> = ({
       return 'Insufficient liquidity'
     }
 
-    if (
-      convertBalanceToBigint(
-        amountFrom,
-        tokens[tokenFrom]?.decimals ? Number(tokens[tokenFrom].decimals) : 0n
-      ) > tokens[tokenFrom]?.balance ||
-      0n
-    ) {
-      return 'Insufficient balance'
-    }
-
     if (alphBalance < SWAP_SAFE_TRANSACTION_FEE) {
       return `Insufficient ALPH`
     }
@@ -363,9 +353,19 @@ export const Swap: React.FC<ISwap> = ({
     if (
       tokenFrom !== null &&
       convertBalanceToBigint(amountFrom, Number(tokens[tokenFrom]?.decimals ?? 0n)) !== 0n &&
-      amountTo === ''
+      (amountFrom.replace('.', '') == '340282366920938463463374607431768211455' || amountTo === '')
     ) {
       return 'Not enough liquidity'
+    }
+
+    if (
+      convertBalanceToBigint(
+        amountFrom,
+        tokens[tokenFrom]?.decimals ? Number(tokens[tokenFrom].decimals) : 0n
+      ) > tokens[tokenFrom]?.balance ||
+      0n
+    ) {
+      return 'Insufficient balance'
     }
 
     return 'Exchange'
