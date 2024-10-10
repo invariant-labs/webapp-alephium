@@ -11,7 +11,7 @@ import {
   TokenAmount
 } from '@invariant-labs/alph-sdk'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { U128MAX } from '@store/consts/static'
+import { U256MAX } from '@store/consts/static'
 import {
   calculateAmountInWithSlippage,
   createLoaderKey,
@@ -226,8 +226,8 @@ export function* handleGetSimulateResult(action: PayloadAction<Simulate>) {
     }
 
     let poolKey = null
-    let amountOut = byAmountIn ? 0n : U128MAX
-    let insufficientLiquidityAmountOut = byAmountIn ? 0n : U128MAX
+    let amountOut = byAmountIn ? 0n : U256MAX
+    let insufficientLiquidityAmountOut = byAmountIn ? 0n : U256MAX
     let priceImpact = 0
     let targetSqrtPrice = 0n
     let fee = 0n
