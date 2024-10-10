@@ -79,7 +79,8 @@ export const Primary: Story = {
     tokenYAddress: '0x1234567890',
     onRefresh: fn(),
     isBalanceLoading: false,
-    network: Network.Testnet
+    network: Network.Testnet,
+    closePositionInProgress: false
   },
   render: args => {
     return (
