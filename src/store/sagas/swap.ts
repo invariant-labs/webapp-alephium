@@ -28,12 +28,11 @@ import { actions as snackbarsActions } from '@store/reducers/snackbars'
 import { actions as positionsActions } from '@store/reducers/positions'
 import { Simulate, Swap, actions } from '@store/reducers/swap'
 import { invariantAddress } from '@store/selectors/connection'
-import { poolTicks, pools, tickMaps, tokens } from '@store/selectors/pools'
-import { address, signer } from '@store/selectors/wallet'
+import { poolTicks, pools, tickMaps } from '@store/selectors/pools'
+import { signer, swapTokens } from '@store/selectors/wallet'
 import { closeSnackbar } from 'notistack'
 import { all, call, put, select, spawn, takeEvery } from 'typed-redux-saga'
 import { fetchBalances } from './wallet'
-import { balanceOf } from '@invariant-labs/alph-sdk/dist/src/utils'
 import { handleRpcError } from './connection'
 
 export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generator {
@@ -64,7 +63,6 @@ export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generato
       })
     )
 
-    const walletAddress = yield* select(address)
     const walletSigner = yield* select(signer)
 
     if (!walletSigner) {
@@ -77,13 +75,11 @@ export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generato
       )
     }
 
-    const allTokens = yield* select(tokens)
+    const allTokens = yield* select(swapTokens)
     const invAddress = yield* select(invariantAddress)
     const invariant = yield* call(Invariant.load, invAddress)
 
-    const tokenX = allTokens[poolKey.tokenX]
-    const tokenY = allTokens[poolKey.tokenY]
-    const xToY = tokenFrom.toString() === poolKey.tokenX
+    const xToY = tokenFrom === poolKey.tokenX
 
     const sqrtPriceLimit = calculateSqrtPriceAfterSlippage(
       estimatedPriceAfterSwap as SqrtPrice,
@@ -94,7 +90,7 @@ export function* handleSwap(action: PayloadAction<Omit<Swap, 'txid'>>): Generato
       ? calculateAmountInWithSlippage(amountOut, sqrtPriceLimit, xToY, poolKey.feeTier.fee)
       : amountIn
 
-    const balance = yield* call(balanceOf, xToY ? tokenX.address : tokenY.address, walletAddress)
+    const balance = allTokens[tokenFrom].balance ?? 0n
     const amountInWithBalance = balance > calculatedAmountIn ? calculatedAmountIn : balance
 
     const swapTxId = yield* call(

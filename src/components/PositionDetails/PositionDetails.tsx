@@ -45,6 +45,7 @@ interface IProps {
   onRefresh: () => void
   isBalanceLoading: boolean
   network: Network
+  closePositionInProgress: boolean
 }
 
 const PositionDetails: React.FC<IProps> = ({
@@ -74,7 +75,8 @@ const PositionDetails: React.FC<IProps> = ({
   userHasStakes = false,
   onRefresh,
   isBalanceLoading,
-  network
+  network,
+  closePositionInProgress
 }) => {
   const { classes } = useStyles()
 
@@ -146,6 +148,7 @@ const PositionDetails: React.FC<IProps> = ({
           isBalanceLoading={isBalanceLoading}
           isActive={isActive}
           network={network}
+          closePositionInProgress={closePositionInProgress}
         />
       </Grid>
 

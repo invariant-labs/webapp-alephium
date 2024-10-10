@@ -10,7 +10,8 @@ import {
   FeeGrowth,
   TokenAmount,
   FEE_TIERS,
-  MAX_POSITIONS_QUERIED
+  MAX_POSITIONS_QUERIED,
+  ONE_ALPH
 } from '@invariant-labs/alph-sdk'
 import {
   BestTier,
@@ -166,10 +167,10 @@ export const ALL_FEE_TIERS_DATA = FEE_TIERS.map((tier, index) => ({
 
 export const U128MAX = 2n ** 128n - 1n
 
-export const SWAP_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.02 * 10 ** 18))
-export const POOL_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.5 * 10 ** 18))
-export const POSITION_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.8 * 10 ** 18))
-export const FAUCET_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.01 * 10 ** 18))
+export const SWAP_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.1 * Number(ONE_ALPH)))
+export const POOL_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.55 * Number(ONE_ALPH)))
+export const POSITION_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.7 * Number(ONE_ALPH)))
+export const FAUCET_SAFE_TRANSACTION_FEE = BigInt(Math.ceil(0.02 * Number(ONE_ALPH)))
 
 export enum ErrorMessage {
   TRANSACTION_SIGNING_ERROR = 'Error while signing transaction.'
