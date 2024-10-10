@@ -26,15 +26,15 @@ import mainnetListJson from '@store/consts/tokenLists/mainnet.json'
 
 export const BTC_ID = {
   ...BTC_ID_SDK,
-  [Network.Mainnet]: '5EEtCdKLyyhQnNQWWWPM1fMDx1WdVuiaoR9cA6CWttgyxtuJ'
+  [Network.Mainnet]: 'xUTp3RXGJ1fJpCGqsAY6GgyfRQ3WQ1MdcYR1SiwndAbR'
 }
 export const ETH_ID = {
   ...ETH_ID_SDK,
-  [Network.Mainnet]: '5EoFQd36196Duo6fPTz2MWHXRzwTJcyETHyCyaB3rb61Xo2u'
+  [Network.Mainnet]: 'vP6XSUyjmgWCB2B9tD5Rqun56WJqDdExWnfwZVEqzhQb'
 }
 export const USDC_ID = {
   ...USDC_ID_SDK,
-  [Network.Mainnet]: '5FYFojNCJVFR2bBNKfAePZCa72ZcVX5yeTv8K9bzeUo8D83Z'
+  [Network.Mainnet]: '22Nb9JajRpAh9A2fWNgoKt867PA6zNyi541rtoraDfKXV'
 }
 
 export enum RPC {
