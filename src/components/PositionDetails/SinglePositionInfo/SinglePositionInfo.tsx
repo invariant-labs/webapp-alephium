@@ -175,7 +175,7 @@ const SinglePositionInfo: React.FC<IProp> = ({
               onClick={() => {
                 if (!userHasStakes) {
                   if (!closePositionInProgress) {
-                  closePosition()
+                    closePosition()
                   }
                 } else {
                   setIsModalOpen(true)
