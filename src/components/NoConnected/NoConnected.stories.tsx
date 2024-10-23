@@ -13,7 +13,6 @@ type Story = StoryObj<typeof meta>
 export const Primary: Story = {
   args: {
     onConnect: () => {},
-    descCustomText: 'You have no positions.',
-    onExplorePools: () => {}
+    descCustomText: 'You have no positions.'
   }
 }
