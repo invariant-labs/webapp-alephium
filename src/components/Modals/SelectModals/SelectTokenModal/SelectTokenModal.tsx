@@ -23,7 +23,6 @@ import { SwapToken } from '@store/selectors/wallet'
 import Scrollbars from 'rc-scrollbars'
 import icons from '@static/icons'
 import { TooltipHover } from '@components/TooltipHover/TooltipHover'
-import { addressFromTokenId } from '@alephium/web3'
 
 export interface ISelectTokenModal {
   tokens: Record<string, SwapToken>
@@ -291,12 +290,17 @@ export const SelectTokenModal: React.FC<ISelectTokenModal> = ({
                       setValue('')
                       handleClose()
                     }}>
-                    <img
-                      className={classes.tokenIcon}
-                      src={token.logoURI}
-                      loading='lazy'
-                      alt={token.name + 'logo'}
-                    />
+                    <Box className={classes.imageContainer}>
+                      <img
+                        className={classes.tokenIcon}
+                        src={token.logoURI}
+                        loading='lazy'
+                        alt={token.name + 'logo'}
+                      />
+                      {token.isUnknown && (
+                        <img className={classes.warningIcon} src={icons.warningIcon} />
+                      )}
+                    </Box>
                     <Grid container className={classes.tokenContainer}>
                       <Grid
                         container
@@ -309,9 +313,7 @@ export const SelectTokenModal: React.FC<ISelectTokenModal> = ({
                         </Typography>
                         <Grid className={classes.tokenAddress} container direction='column'>
                           <a
-                            href={`https://testnet.alephium.org/addresses/${addressFromTokenId(
-                              token.assetAddress
-                            )}`}
+                            href={`https://ascan.alephzero.org/testnet/account/${token.assetAddress}`}
                             target='_blank'
                             rel='noopener noreferrer'
                             onClick={event => {

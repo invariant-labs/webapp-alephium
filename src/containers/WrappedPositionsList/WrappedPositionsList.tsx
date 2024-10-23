@@ -14,6 +14,7 @@ import {
   printBigint
 } from '@utils/utils'
 import { actions } from '@store/reducers/positions'
+import { actions as walletActions } from '@store/reducers/wallet'
 import { Status } from '@store/reducers/wallet'
 import {
   isLoadingPositionsList,
@@ -26,7 +27,6 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { IPositionItem } from '@components/PositionsList/PositionItem/PositionItem'
-import { actions as walletActions } from '@store/reducers/wallet'
 
 export const WrappedPositionsList: React.FC = () => {
   const walletAddress = useSelector(address)
@@ -173,8 +173,7 @@ export const WrappedPositionsList: React.FC = () => {
           dispatch(walletActions.setShowConnectModal(true))
         },
         title: 'Start exploring liquidity pools right now!',
-        descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!',
-        onExplorePools: () => navigate('/newPosition/0_01')
+        descCustomText: 'Or, connect your wallet to see existing positions, and create a new one!'
       }}
       pageChanged={page => {
         const index = positionListPageToQueryPage(page)

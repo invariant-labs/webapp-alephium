@@ -34,17 +34,11 @@ export const useStyles = makeStyles()(() => ({
 
   imageContainer: {
     display: 'flex',
-    alignItems: 'center',
-    '& img': {
-      minWidth: 28,
-      maxWidth: 28,
-      height: 28,
-      marginRight: 3,
-      borderRadius: '50%'
-    }
+    alignItems: 'center'
   },
 
   iconsWrapper: {
+    display: 'flex',
     height: 28
   },
 
@@ -140,8 +134,25 @@ export const useStyles = makeStyles()(() => ({
       }
     }
   },
-
+  iconContainer: {
+    minWidth: 28,
+    maxWidth: 28,
+    height: 28,
+    marginRight: 3,
+    position: 'relative'
+  },
   tokenIcon: {
-    background: colors.white.main
+    minWidth: 28,
+    maxWidth: 28,
+    height: 28,
+    marginRight: 3,
+    borderRadius: '50%'
+  },
+  warningIcon: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    bottom: -6,
+    right: -6
   }
 }))
