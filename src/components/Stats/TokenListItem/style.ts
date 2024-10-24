@@ -56,14 +56,6 @@ export const useStyles = makeStyles()((theme: Theme) => ({
       overflow: 'hidden',
       whiteSpace: 'nowrap',
       textOverflow: 'ellipsis'
-    },
-
-    '& img': {
-      minWidth: 28,
-      maxWidth: 28,
-      height: 28,
-      marginRight: 8,
-      borderRadius: '50%'
     }
   },
 
@@ -76,8 +68,27 @@ export const useStyles = makeStyles()((theme: Theme) => ({
       marginLeft: -4
     }
   },
-
+  imageContainer: {
+    minWidth: 28,
+    maxWidth: 28,
+    height: 28,
+    marginRight: 8,
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center'
+  },
   tokenIcon: {
-    background: colors.white.main
+    minWidth: 28,
+    maxWidth: 28,
+    height: 28,
+    marginRight: 8,
+    borderRadius: '50%'
+  },
+  warningIcon: {
+    position: 'absolute',
+    width: 12,
+    height: 12,
+    bottom: -6,
+    right: -6
   }
 }))

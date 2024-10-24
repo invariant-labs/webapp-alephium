@@ -103,8 +103,7 @@ export const Primary: Story = {
     onAddPositionClick: handleClick,
     itemsPerPage: 5,
     noConnectedBlockerProps: {
-      onConnect: () => {},
-      onExplorePools: () => {}
+      onConnect: () => {}
     },
     searchValue: '',
     searchSetValue: () => {},
