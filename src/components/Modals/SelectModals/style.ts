@@ -130,8 +130,7 @@ const useStyles = makeStyles()((theme: Theme) => {
       width: 24,
       height: 24,
       borderRadius: '50%',
-      marginRight: 8,
-      background: colors.white.main
+      marginRight: 8
     },
     tokenList: {
       background: colors.invariant.component,
@@ -215,15 +214,27 @@ const useStyles = makeStyles()((theme: Theme) => {
         color: colors.invariant.text
       }
     },
-
+    imageContainer: {
+      minWidth: 30,
+      maxWidth: 30,
+      height: 30,
+      marginRight: 16,
+      position: 'relative'
+    },
     tokenIcon: {
       minWidth: 30,
       maxWidth: 30,
       height: 30,
       marginRight: 16,
       borderRadius: '50%',
-      boxShadow: '0px 0px 10px rgba(216, 255, 181, 0.5)',
-      background: colors.white.main
+      boxShadow: '0px 0px 10px rgba(216, 255, 181, 0.5)'
+    },
+    warningIcon: {
+      position: 'absolute',
+      width: 12,
+      height: 12,
+      bottom: -6,
+      right: -6
     },
     tokenBalance: {
       ...typography.body2,

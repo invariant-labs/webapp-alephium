@@ -205,29 +205,13 @@ const SinglePositionInfo: React.FC<IProp> = ({
           title={'Liquidity'}
           tokenA={
             xToY
-              ? {
-                  ...tokenX,
-                  value: tokenX.liqValue,
-                  price: tokenXPriceData?.price
-                }
-              : {
-                  ...tokenY,
-                  value: tokenY.liqValue,
-                  price: tokenYPriceData?.price
-                }
+              ? { ...tokenX, value: tokenX.liqValue, price: tokenXPriceData?.price }
+              : { ...tokenY, value: tokenY.liqValue, price: tokenYPriceData?.price }
           }
           tokenB={
             xToY
-              ? {
-                  ...tokenY,
-                  value: tokenY.liqValue,
-                  price: tokenYPriceData?.price
-                }
-              : {
-                  ...tokenX,
-                  value: tokenX.liqValue,
-                  price: tokenXPriceData?.price
-                }
+              ? { ...tokenY, value: tokenY.liqValue, price: tokenYPriceData?.price }
+              : { ...tokenX, value: tokenX.liqValue, price: tokenXPriceData?.price }
           }
           showBalance
           swapHandler={swapHandler}

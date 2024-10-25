@@ -35,13 +35,10 @@ export const useStyles = makeStyles()((theme: Theme) => ({
   },
   tokenIcon: {
     width: 40,
-    height: 40,
     borderRadius: '100%',
-    background: colors.white.main,
 
     [theme.breakpoints.down('sm')]: {
-      width: 28,
-      height: 28
+      width: 28
     }
   },
   arrows: {

@@ -46,13 +46,8 @@ export const SelectMainnetRPC: React.FC<ISelectMainnetRPC> = ({
   useEffect(() => {
     if (!open && !customApplied) {
       setAddress('')
-    } else {
-      setCustomApplied(false)
-      setButtonApplied(false)
-      setActiveCustom(false)
-      setAddress('')
     }
-  }, [activeRPC])
+  }, [open])
 
   useEffect(() => {
     if (!networks.some(net => net.rpc === activeRPC)) {
@@ -60,8 +55,13 @@ export const SelectMainnetRPC: React.FC<ISelectMainnetRPC> = ({
       setButtonApplied(true)
       setActiveCustom(true)
       setAddress(activeRPC)
+    } else {
+      setCustomApplied(false)
+      setButtonApplied(false)
+      setActiveCustom(false)
+      setAddress('')
     }
-  }, [])
+  }, [activeRPC])
 
   return (
     <Popover

@@ -32,7 +32,9 @@ interface IProps {
   //   fees: number
   //   accumulatedFarmsAvg: number
   //   accumulatedFarmsSingleTick: number
-  // }
+  // },
+  isUnknownFrom?: boolean
+  isUnknownTo?: boolean
 }
 
 const PoolListItem: React.FC<IProps> = ({
@@ -50,13 +52,15 @@ const PoolListItem: React.FC<IProps> = ({
   hideBottomLine = false,
   addressFrom,
   addressTo,
-  network
+  network,
   // apy = 0,
   // apyData = {
   //   fees: 0,
   //   accumulatedFarmsAvg: 0,
   //   accumulatedFarmsSingleTick: 0
   // }
+  isUnknownFrom,
+  isUnknownTo
 }) => {
   const { classes } = useStyles()
 
@@ -82,6 +86,7 @@ const PoolListItem: React.FC<IProps> = ({
       )}/${addressToTicker(network ?? Network.Testnet, addressTo ?? '')}`
     )
   }
+
   return (
     <Grid maxWidth='100%'>
       {displayType === 'token' ? (
@@ -93,8 +98,14 @@ const PoolListItem: React.FC<IProps> = ({
           <Grid className={classes.imageContainer}>
             {!isSm && (
               <Box className={classes.iconsWrapper}>
-                <img className={classes.tokenIcon} src={iconFrom} alt='Token from' />
-                <img className={classes.tokenIcon} src={iconTo} alt='Token to' />
+                <Box className={classes.iconContainer}>
+                  <img className={classes.tokenIcon} src={iconFrom} alt='Token from' />
+                  {isUnknownFrom && <img className={classes.warningIcon} src={icons.warningIcon} />}
+                </Box>
+                <Box className={classes.iconContainer}>
+                  <img className={classes.tokenIcon} src={iconTo} alt='Token to' />
+                  {isUnknownTo && <img className={classes.warningIcon} src={icons.warningIcon} />}
+                </Box>
               </Box>
             )}
             <Grid className={classes.symbolsContainer}>
