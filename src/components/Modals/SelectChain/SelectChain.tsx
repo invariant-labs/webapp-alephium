@@ -47,7 +47,7 @@ export const SelectChain: React.FC<ISelectChainModal> = ({
                 chain.name === activeChain.name ? classes.active : null
               )}
               item
-              key={`chain-${chain.name}`}
+              key={`chain-${activeChain}`}
               onClick={() => {
                 onSelect(chain)
               }}>

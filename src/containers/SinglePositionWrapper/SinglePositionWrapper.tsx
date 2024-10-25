@@ -434,7 +434,6 @@ export const SinglePositionWrapper: React.FC<IProps> = ({ id }) => {
           }}
           title='Connect a wallet to view your position,'
           descCustomText='or start exploring liquidity pools now!'
-          onExplorePools={() => navigate('/newPosition/0_01')}
         />
       </Grid>
     )

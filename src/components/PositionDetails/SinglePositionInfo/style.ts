@@ -17,7 +17,11 @@ export const useStyles = makeStyles()((theme: Theme) => ({
     width: 35,
     height: 35,
     borderRadius: '100%',
-    background: colors.white.main
+    background: colors.white.main,
+
+    [theme.breakpoints.down('sm')]: {
+      width: 22
+    }
   },
   arrowIcon: {
     width: 32,
