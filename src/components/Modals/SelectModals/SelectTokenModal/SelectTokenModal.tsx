@@ -313,7 +313,7 @@ export const SelectTokenModal: React.FC<ISelectTokenModal> = ({
                         </Typography>
                         <Grid className={classes.tokenAddress} container direction='column'>
                           <a
-                            href={`https://ascan.alephzero.org/testnet/account/${token.assetAddress}`}
+                            href={`https://testnet.alephium.org/addresses/${token.assetAddress}`}
                             target='_blank'
                             rel='noopener noreferrer'
                             onClick={event => {
